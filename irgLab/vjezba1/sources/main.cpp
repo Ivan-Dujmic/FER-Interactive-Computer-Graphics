@@ -41,7 +41,7 @@ int main(int argc, char * argv[]) {
 
 	while (grafika.trebaZatvoriti()) {
 
-		//osvjezavanje pozicije razlicitih objekata i fizikalna simulacija bi se izvrsavala u ovom dijelu
+		//osvjezavanje pozicija razlicitih objekata i fizikalna simulacija bi se izvrsavala u ovom dijelu
 
 		grafika.pobrisiProzor();
 

@@ -104,6 +104,9 @@ int main(int argc, char * argv[]) {
 	Shader *sjencar[4];
 	
 	/*********************************************************************************************/
+	// svaki iduci primjer prvo definira koji su sve podaci potrebni na grafickoj kartici, a potom
+	// se unutar petlje iscrtava
+	/*********************************************************************************************/
 	//primjer 1
 	//vrhovi kroz buffer, a boja kroz uniformnu varijablu
 
@@ -255,7 +258,7 @@ int main(int argc, char * argv[]) {
 
 	glBindVertexArray(0);
 
-
+	//glavna petlja programa
 	while (glfwWindowShouldClose(window) == false) {
 
 
@@ -318,7 +321,7 @@ int main(int argc, char * argv[]) {
 
 		/********************************************************/
 		//primjer 4b
-		//samo jednom pozivamo iscrtavanje
+		//samo jednom pozivamo iscrtavanje za sve instance jer smo grafickoj poslali polje transformacija
 		glUseProgram(sjencar[3]->ID);
 		glViewport(width / 3,0, width / 3, height / 2);
 

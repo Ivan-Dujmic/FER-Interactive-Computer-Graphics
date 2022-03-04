@@ -9,6 +9,10 @@ add_subdirectory(irgLab/dependencies/glfw)
 option(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 option(ASSIMP_BUILD_SAMPLES OFF)
 option(ASSIMP_BUILD_TESTS OFF)
+option(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
+option(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
+set(ASSIMP_BUILD_OBJ_EXPORTER TRUE)
+set(ASSIMP_BUILD_OBJ_IMPORTER TRUE)
 add_subdirectory(irgLab/dependencies/assimp)
 
 
