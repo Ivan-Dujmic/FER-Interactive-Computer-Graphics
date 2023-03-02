@@ -52,12 +52,12 @@ int main(int argc, char * argv[]) {
 		
 		std::cout << "prvih 10 tocaka:" << std::endl;
 		//popis svih tocaka u modelu s x, y, z koordinatama
-		for (int i = 0; i < 10 && i < mesh->mVertices->Length(); i++)
+		for (int i = 0; i < 10 && i < mesh->mNumVertices; i++)
 			std::cout << mesh->mVertices[i].x << " " << mesh->mVertices[i].y << " " << mesh->mVertices[i].z << std::endl;
 		
 		std::cout << "prvih 10 uv koordinata na teksturi" << std::endl;
 		//popis svih koordinata u texturi u modelu s u,v koordinatama 
-		for (int i = 0; i < 10 && i < mesh->mVertices->Length(); i++)
+		for (int i = 0; i < 10 && i < mesh->mNumVertices; i++)
 			//moze biti vise kanala za koordinate teksture, najcesce je samo jedan zato [0]
 			std::cout << mesh->mTextureCoords[0][i].x << " " << mesh->mTextureCoords[0][i].y << std::endl;
 
