@@ -10,6 +10,8 @@
 #include <assimp/scene.h>           
 #include <assimp/postprocess.h> 
 
+//nekima mozda ne radi primjerASSIMP zbog ponovnih definicija stbi funkcija.
+//Jedno od mogucih rjesenja je da se zakomentira linija #define STB_IMAGE_IMPLEMENTATION.
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -37,7 +39,11 @@ int main(int argc, char * argv[]) {
 		aiProcess_CalcTangentSpace |
 		aiProcess_Triangulate |
 		aiProcess_JoinIdenticalVertices |
-		aiProcess_SortByPType);
+		aiProcess_SortByPType |
+		aiProcess_FlipUVs |
+		aiProcess_GenNormals
+		
+	);
 
 	if (!scene) {
 		std::cerr << importer.GetErrorString();
@@ -54,12 +60,23 @@ int main(int argc, char * argv[]) {
 		//popis svih tocaka u modelu s x, y, z koordinatama
 		for (int i = 0; i < 10 && i < mesh->mNumVertices; i++)
 			std::cout << mesh->mVertices[i].x << " " << mesh->mVertices[i].y << " " << mesh->mVertices[i].z << std::endl;
+		std::cout << std::endl;
+
+		std::cout << "prvih 10 normala:" << std::endl;
+		//popis svih normala s x,y,z koordinatama
+		for (int i = 0; i < 10 && i < mesh->mNumVertices; i++)
+			//moze biti vise kanala za koordinate teksture, najcesce je samo jedan zato [0]
+			std::cout << mesh->mNormals[i].x << " " << mesh->mNormals[i].y << " " << mesh->mNormals[i].z << std::endl;
+		std::cout << std::endl;
+
 		
-		std::cout << "prvih 10 uv koordinata na teksturi" << std::endl;
+		std::cout << "prvih 10 uv koordinata na teksturi:" << std::endl;
 		//popis svih koordinata u texturi u modelu s u,v koordinatama 
+		//uv koordinate su zrcaljene prilikom importa -> aiProcess_FlipUVs
 		for (int i = 0; i < 10 && i < mesh->mNumVertices; i++)
 			//moze biti vise kanala za koordinate teksture, najcesce je samo jedan zato [0]
 			std::cout << mesh->mTextureCoords[0][i].x << " " << mesh->mTextureCoords[0][i].y << std::endl;
+		std::cout << std::endl;
 
 
 		std::cout << "prvih 10 poligona:" << std::endl;
@@ -72,9 +89,10 @@ int main(int argc, char * argv[]) {
 
 			std::cout << "-> " << std::endl;
 			//Do koordinata tih tocaka se dolazi preko prijasnjeg popisa.
+			//OPREZ! razmisliti prije nego se kopiraju dijelovi ovog koda. OpenGL želi indeksirane vrhove, normale i uv koordinate, a tu smo prikazali te podatke slijedno, a ne indeksirano!
 
 			for (int j = 0; j < mesh->mFaces[i].mNumIndices; j++) {
-				int vertex = mesh->mFaces[i].mIndices[j];
+				int vertex = mesh->mFaces[i].mIndices[j]; //OPREZ! grafickoj kartici cete po uputama slati indeksirane buffere, a ne slijedne
 				std::cout << "   coordinates    xyz  "<< mesh->mVertices[vertex].x << " " << mesh->mVertices[vertex].y << " " << mesh->mVertices[vertex].z << std::endl;
 			}
 
@@ -83,16 +101,14 @@ int main(int argc, char * argv[]) {
 			//uz svaku tocku na poligonu je pridruzena i uv koordinata na teksturi preko istog indeksa
 
 			for (int j = 0; j < mesh->mFaces[i].mNumIndices; j++) {
-				int vertex = mesh->mFaces[i].mIndices[j];
-				
+				int vertex = mesh->mFaces[i].mIndices[j]; //OPREZ! grafickoj kartici cete po uputama slati indeksirane buffere, a ne slijedne
 				std::cout << "   texture         uv  " << mesh->mTextureCoords[0][vertex].x << " " << mesh->mTextureCoords[0][vertex].y << std::endl;
 			}
 			
 			//svaka tocka ima i pridruzene normale preko istog indeksa
 
 			for (int j = 0; j < mesh->mFaces[i].mNumIndices; j++) {
-				int vertex = mesh->mFaces[i].mIndices[j];
-
+				int vertex = mesh->mFaces[i].mIndices[j]; //OPREZ! grafickoj kartici cete po uputama slati indeksirane buffere, a ne slijedne
 				std::cout << "   normals        xyz  " << mesh->mNormals[vertex].x << " " << mesh->mNormals[vertex].y <<  " " << mesh->mNormals[vertex].z << std::endl;
 			}
 
@@ -128,13 +144,17 @@ int main(int argc, char * argv[]) {
 				
 				texPath.append("\\glava\\");
 				texPath.append(texturePosition.C_Str());
+
+				//stbi_set_flip_vertically_on_load(true); //flipana y koordinata kod robota, obavezno provjeriti
 				data = stbi_load(texPath.c_str(), &width, &height, &nrChannels, 0);
+				stbi_image_free(data); //brisanje na kraju
 			}
 
 
 
 			glm::vec3 ambientColor;
 			aiColor3D ambientK, diffuseK, specularK, reflectiveK, emissiveK;
+			float shininessK;
 
 			std::cout << "ambient: ";
 			scene->mMaterials[i]->Get(AI_MATKEY_COLOR_AMBIENT, ambientK);
@@ -147,8 +167,12 @@ int main(int argc, char * argv[]) {
 			std::cout << "specular: ";
 			scene->mMaterials[i]->Get(AI_MATKEY_COLOR_SPECULAR, specularK);
 			std::cout << specularK.r << " " << specularK.g << " " << specularK.b << std::endl;
-			
 
+			std::cout << "shininess ";
+			scene->mMaterials[i]->Get(AI_MATKEY_SHININESS, shininessK);
+			std::cout << shininessK << std::endl;
+			
+			// emissive komponenta se ne trazi za implementirati u lab. vježbama
 			std::cout << "emissive: ";
 			scene->mMaterials[i]->Get(AI_MATKEY_COLOR_EMISSIVE, emissiveK);
 			std::cout << emissiveK.r << " " << emissiveK.g << " " << emissiveK.b << std::endl;

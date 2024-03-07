@@ -1,4 +1,6 @@
 // Local Headers
+#include "Shader.h"
+#include "FPSManager.h"
 
 // System Headers
 #include <glad/glad.h>
@@ -6,9 +8,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
-#include "Shader.h"
-#include "FPSManager.h"
 
 // Standard Headers
 #include <cstdio>
@@ -48,7 +47,7 @@ Shader* loadShader(char* path, char* naziv) {
 	return new Shader(pathVert.c_str(), pathFrag.c_str());
 }
 
-//funkcija koja se poziva prilikom mijenjanja velicine prozora, moramo ju poveyati pomocu glfwSetFramebufferSizeCallback
+//funkcija koja se poziva prilikom mijenjanja velicine prozora, moramo ju povezati pomocu glfwSetFramebufferSizeCallback
 void framebuffer_size_callback(GLFWwindow * window, int Width, int Height)
 {
 	width = Width;

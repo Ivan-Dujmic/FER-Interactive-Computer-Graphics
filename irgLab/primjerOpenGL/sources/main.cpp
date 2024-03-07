@@ -18,7 +18,7 @@
 
 int width = 900, height = 600;
 
-
+//na temelju naziva sjencara izradi objekt sjencara. Npr. shader0 -> shader0.vert i shader0.frag
 Shader* loadShader(char* path, char* naziv) {
 	std::string sPath(path);
 	std::string pathVert;
@@ -55,12 +55,18 @@ void framebuffer_size_callback(GLFWwindow * window, int Width, int Height)
 	width = Width;
 	height = Height;
 }
-  
+
+
+/*****************************************************************************************************************************
+organizacija koda:
+Svaki primjer ima dva dijela. Dio koji se izvrsi prije pokretanja glavne petlje i dio koji se izvrsava unutar glavne petlje.
+Generirani VAO, VBO i EBO se izmedu nekih primjera dijele.
+
+ako se ne pokrece!!
+primjer 4b koristi funkcionalnosti iz novijih verzija OpenGL, pa ako ga zakomentirate mozda popravi vas problem
+*****************************************************************************************************************************/
 
 int main(int argc, char * argv[]) {
-	
-	//ako se ne pokrece!!
-	//primjer 4b koristi funkcionalnosti iz novijih verzija OpenGL, pa ako ga zakomentirate mozda popravi vas problem
 	
 	GLFWwindow* window;
 
@@ -120,17 +126,20 @@ int main(int argc, char * argv[]) {
 			 1, -1, 0,
 			0,  1, 0 };
 	
-	glBindVertexArray(VAO[0]);
+	glBindVertexArray(VAO[0]); //Iduce naredbe se odnose na vezani(bind) VAO sve dok se ne promijeni ili iskljuci.
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(trokutKoordinate), trokutKoordinate, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[0]); //Iduce naredbe se odnose na vezani(bind) VBO sve dok se ne promijeni ili iskljuci
+		glBufferData(GL_ARRAY_BUFFER, sizeof(trokutKoordinate), trokutKoordinate, GL_STATIC_DRAW);  //naredba za definiranje gdje se nalaze podaci u glavnoj memoriji za prijenos na graf. karticu
 	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); //pogledati shader0.vert
+		glEnableVertexAttribArray(0); //pogledati shader0.vert
 
-	glEnableVertexAttribArray(0);
+	glBindVertexArray(0);
+
+
 	/*********************************************************************************************/
 	//primjer 2
-	//interlaced vrhovi i boje kroz buffer
+	//interlaced vrhovi i boje kroz jedan buffer
 
 	sjencar[1] = loadShader(argv[0], "shader1");
 
@@ -142,14 +151,18 @@ int main(int argc, char * argv[]) {
 
 	glBindVertexArray(VAO[1]);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(obojaniTrokut), obojaniTrokut, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(obojaniTrokut), obojaniTrokut, GL_STATIC_DRAW); //polje podataka sadrzi i koordinate i boje
+	
+		//jedan redak ima 6 float podatka
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); //definiramo gdje se nalaze koordinate u vezanom bufferu (na pocetku svakog retka)
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)((3 * sizeof(float)))); //definiramo gdje se nalaze boje u vezanom bufferu (u svakom retku odmaknuto za 3 float)
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)((3 * sizeof(float))));
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
 
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
+	glBindVertexArray(0);
+
 
 	/*********************************************************************************************/
 	//primjer 3
@@ -181,19 +194,20 @@ int main(int argc, char * argv[]) {
 
 	glBindVertexArray(VAO[2]);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(indeksiraniVrhovi), indeksiraniVrhovi, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(indeksiraniVrhovi), indeksiraniVrhovi, GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[3]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(indeksiraneBoje), indeksiraneBoje, GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[3]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(indeksiraneBoje), indeksiraneBoje, GL_STATIC_DRAW);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indeksi), (void*)(&indeksi[0]), GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); //koristi se polje podataka za indekse
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indeksi), (void*)(&indeksi[0]), GL_STATIC_DRAW);
+
 	glBindVertexArray(0);
 
 	/*********************************************************************************************/
@@ -206,19 +220,37 @@ int main(int argc, char * argv[]) {
 	//izrada polja transformacija koji  postavljaju objekte u mrezu 4x4
 	glm::mat4 jedinicna = glm::mat4(1);
 	glm::mat4 skaliranje = glm::scale(jedinicna, glm::vec3(0.25, 0.25, 0.25));
+	//rezultat:
+	//0.25 0    0    0
+	//0    0.25 0    0 
+	//0    0    0.25 0
+	//0    0    0    1
+
 	glm::mat4 poljeTransformacija[16];
 	int brojac = 0;
 	for (float i = -1; i < 1; i+=0.5) {
 		for (float j = -1; j < 1; j+=0.5) {
-			poljeTransformacija[brojac++] =  glm::translate(jedinicna, glm::vec3(j+0.25, i+0.25 , 0)) * skaliranje;
+			poljeTransformacija[brojac++] =  glm::translate(jedinicna, glm::vec3(j+0.25, i+0.25 , 0));
 		}
 	}
+	//rezultat:
+	//1    0    0    0
+	//0    1    0    0 
+	//0    0    1    0
+	//i+0.25  j+0.25    0    1
+	for (int i = 0; i < 16; i++)
+		poljeTransformacija[i] = poljeTransformacija[i] * skaliranje;
+	//rezultat:
+	//0.25   0      0      0
+	//0      0.25   0      0 
+	//0      0      0.25   0
+	//i+0.25 j+0.25 0      1
 
 
 	/*********************************************************************************************/
 	//primjer 4b
 	//instanciranje istog "objekta" preko dodatnog polja transformacija
-	//kako smo vec napravili VBO i EBO u primjeru 3, mozemo ih reciklirati za ovaj primjer bez slanja na graficku karticu
+	//kako smo vec napravili VBO[2] i VBO[3] i EBO u primjeru 3, mozemo ih reciklirati za ovaj primjer bez ponovnog slanja na graficku karticu
 	sjencar[3] = loadShader(argv[0], "shader3");
 
 	glBindVertexArray(VAO[3]);
@@ -229,6 +261,7 @@ int main(int argc, char * argv[]) {
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[3]);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
+	//dodajemo polje podataka za transformacije
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[4]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(poljeTransformacija), poljeTransformacija, GL_STATIC_DRAW);
 
@@ -261,22 +294,20 @@ int main(int argc, char * argv[]) {
 	//glavna petlja programa
 	while (glfwWindowShouldClose(window) == false) {
 
-
 		glClear(GL_COLOR_BUFFER_BIT);
-
 		
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 		
 		/********************************************************/
 		//primjer 1
-		glUseProgram(sjencar[0]->ID);
-		glUniform3f(lokacijaUniformVarijable, 0.5, 1.0, 1.0);
+		glUseProgram(sjencar[0]->ID); //koristi sjencar shader0
+		glUniform3f(lokacijaUniformVarijable, 0.5, 1.0, 1.0); //pogledaj shader0.vert
 	
-		glViewport(0, height/2, width/3, height/2);
+		glViewport(0, height/2, width/3, height/2); //u koji dio okvira prozora se iscrtava (gore lijevo)
 
-		glBindVertexArray(VAO[0]);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(VAO[0]); //koristi VAO[0] za crtanje
+		glDrawArrays(GL_TRIANGLES, 0, 3); //poziv crtanja
 		glBindVertexArray(0);
 
 		/********************************************************/
@@ -297,7 +328,7 @@ int main(int argc, char * argv[]) {
 		glViewport(2*width/3, height/2, width/3, height/2);
 
 		glBindVertexArray(VAO[2]);
-		glDrawElements(GL_TRIANGLES, sizeof(indeksi), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, sizeof(indeksi), GL_UNSIGNED_INT, 0); //poziv crtanja s indeksima
 		glBindVertexArray(0);
 
 		/********************************************************/
@@ -306,10 +337,8 @@ int main(int argc, char * argv[]) {
 		glUseProgram(sjencar[2]->ID);
 		glViewport(0, 0, width / 3, height / 2);
 
-
 		glBindVertexArray(VAO[2]);
-		
-		
+				
 		for (int i = 0; i < 16; i++) {
 			glUniformMatrix4fv(lokacijaUniformVarijable2, 1, GL_FALSE, &poljeTransformacija[i][0][0]);
 			glDrawElements(GL_TRIANGLES, sizeof(indeksi), GL_UNSIGNED_INT, 0);  
@@ -326,7 +355,7 @@ int main(int argc, char * argv[]) {
 		glViewport(width / 3,0, width / 3, height / 2);
 
 		glBindVertexArray(VAO[3]);
-		glDrawElementsInstanced(GL_TRIANGLES, sizeof(indeksi), GL_UNSIGNED_INT, 0, 16); 
+		glDrawElementsInstanced(GL_TRIANGLES, sizeof(indeksi), GL_UNSIGNED_INT, 0, 16); //poziv crtanja s indeksima i instancama
 		
 		glBindVertexArray(0);
 		
