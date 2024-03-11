@@ -24,8 +24,8 @@ private:
 	static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 	static void(*mouse_callback_user)(int, int, int);
 
-	int loadGlfw();
-	int loadRasterShader(char* path);
+	void loadGlfw();
+	Shader* loadRasterShader(char* path);
 
 
 	int width;

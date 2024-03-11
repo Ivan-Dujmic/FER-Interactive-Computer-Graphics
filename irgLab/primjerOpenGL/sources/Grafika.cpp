@@ -23,7 +23,7 @@ void Grafika::cursor_position_callback(GLFWwindow * window, double xpos, double 
 	cursorPosition = glm::vec2(xpos, ypos);
 }
 
-int Grafika::loadGlfw()
+void Grafika::loadGlfw()
 {
 	glfwInit();
 
@@ -43,7 +43,7 @@ int Grafika::loadGlfw()
 	glfwMakeContextCurrent(window);
 }
 
-int Grafika::loadRasterShader(char* path)
+Shader* Grafika::loadRasterShader(char* path)
 {
 	std::string sPath(path);
 	std::string pathVert;
@@ -65,6 +65,7 @@ int Grafika::loadRasterShader(char* path)
 	}
 
 	rasterShader = new Shader(pathVert.c_str(), pathFrag.c_str());
+	return rasterShader;
 }
 
 
