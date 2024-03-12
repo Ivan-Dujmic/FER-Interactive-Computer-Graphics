@@ -224,7 +224,7 @@ int main(int argc, char * argv[]) {
 		glBindVertexArray(VAO);
 			for (int i = 0; i <32; i++) {
 				glUniformMatrix4fv(lokacijaUniformVarijable, 1, GL_FALSE, &poljeTransformacija[i][0][0]);
-				glDrawElements(GL_TRIANGLES, sizeof(indeksi), GL_UNSIGNED_INT, 0);  
+				glDrawElements(GL_TRIANGLES, sizeof(indeksi)/sizeof(unsigned int), GL_UNSIGNED_INT, 0);  
 			}
 		glBindVertexArray(0);
 

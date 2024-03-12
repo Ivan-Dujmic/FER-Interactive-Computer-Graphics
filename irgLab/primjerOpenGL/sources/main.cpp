@@ -328,7 +328,7 @@ int main(int argc, char * argv[]) {
 		glViewport(2*width/3, height/2, width/3, height/2);
 
 		glBindVertexArray(VAO[2]);
-		glDrawElements(GL_TRIANGLES, sizeof(indeksi), GL_UNSIGNED_INT, 0); //poziv crtanja s indeksima
+		glDrawElements(GL_TRIANGLES, sizeof(indeksi)/sizeof(unsigned int), GL_UNSIGNED_INT, 0); //poziv crtanja s indeksima
 		glBindVertexArray(0);
 
 		/********************************************************/
@@ -341,7 +341,7 @@ int main(int argc, char * argv[]) {
 				
 		for (int i = 0; i < 16; i++) {
 			glUniformMatrix4fv(lokacijaUniformVarijable2, 1, GL_FALSE, &poljeTransformacija[i][0][0]);
-			glDrawElements(GL_TRIANGLES, sizeof(indeksi), GL_UNSIGNED_INT, 0);  
+			glDrawElements(GL_TRIANGLES, sizeof(indeksi)/sizeof(unsigned int), GL_UNSIGNED_INT, 0);  
 		}
 		
 
@@ -355,7 +355,7 @@ int main(int argc, char * argv[]) {
 		glViewport(width / 3,0, width / 3, height / 2);
 
 		glBindVertexArray(VAO[3]);
-		glDrawElementsInstanced(GL_TRIANGLES, sizeof(indeksi), GL_UNSIGNED_INT, 0, 16); //poziv crtanja s indeksima i instancama
+		glDrawElementsInstanced(GL_TRIANGLES, sizeof(indeksi)/sizeof(unsigned int), GL_UNSIGNED_INT, 0, 16); //poziv crtanja s indeksima i instancama
 		
 		glBindVertexArray(0);
 		
