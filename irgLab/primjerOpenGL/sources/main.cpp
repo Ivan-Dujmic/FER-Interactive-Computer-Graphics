@@ -184,7 +184,9 @@ int main(int argc, char * argv[]) {
 		1, 0, 1,
 		1, 1, 0
 	};
-
+	// svaki redak sadrzi indekse vrhova za jedan trokut -> iscrtat ce se 4 trokuta. 
+	// Indeksi odgovaraju retcima u prethodnim poljima.
+	//npr. prvi redak 0, 5, 3 je trokut sastavljen od vrhova (-1,  -1, 0,), (0,  -0.9, 0), (-0.4, -0.1, 0) i od odgovarajucih boja
 	unsigned int indeksi[12] = {
 		0, 5, 3,
 		3, 5, 4,
