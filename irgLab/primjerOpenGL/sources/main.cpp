@@ -23,7 +23,7 @@ Shader* loadShader(char* path, char* naziv) {
 	std::string sPath(path);
 	std::string pathVert;
 	std::string pathFrag;
-
+	 
 	//malo je nespretno napravljeno jer ne koristimo biblioteku iz c++17, a treba podrzati i windows i linux
 
 	pathVert.append(path, sPath.find_last_of("\\/") + 1);
