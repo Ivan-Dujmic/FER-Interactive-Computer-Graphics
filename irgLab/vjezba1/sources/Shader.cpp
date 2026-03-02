@@ -3,20 +3,20 @@
 void Shader::checkCompilerErrors(unsigned int shader, std::string type)
 {
 	int success;
-	char infolog[1024] = {};
+	char infolog[1024];
 	if (type != "PROGRAM") {
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
 		if (!success) {
-			glGetShaderInfoLog(shader, 1024, NULL, infolog);
-			fprintf(stderr, "ERROR::SHADER_COMPILATION_ERROR of type: %d\n%s\n-----------------------------------------------------\n", type, infolog);
+			glGetShaderInfoLog(shader, 1024, nullptr, infolog);
+			fprintf(stderr, "ERROR::SHADER_COMPILATION_ERROR of type: %s\n%s\n-----------------------------------------------------\n", type, infolog);
 		}
 	}
 	else {
 		glGetProgramiv(shader, GL_LINK_STATUS, &success);
 		if (!success) {
-			glGetProgramInfoLog(shader, 1024, NULL, infolog);
-			fprintf(stderr, "ERROR::PROGRAM_LINKING_ERROR of type: %d\n%s\n-------------------------------------------------------\n", type, infolog);
+			glGetProgramInfoLog(shader, 1024, nullptr, infolog);
+			fprintf(stderr, "ERROR::PROGRAM_LINKING_ERROR of type: %s\n%s\n-------------------------------------------------------\n", type, infolog);
 		}
 	}
 }
