@@ -140,7 +140,7 @@ int Grafika::osvijetliFragment(int x, int y) {
 }
 
 int Grafika::osvijetliFragment(int x, int y, glm::vec3 boja){
-	if (x >= 0 && x < width || y >= 0 && y < height) {
+	if (x >= 0 && x < width && y >= 0 && y < height) {
 		raster[y*width * 3 + x * 3] = boja.x;
 		raster[y*width * 3 + x * 3 + 1] = boja.y;
 		raster[y*width * 3 + x * 3 + 2] = boja.z;
@@ -148,7 +148,7 @@ int Grafika::osvijetliFragment(int x, int y, glm::vec3 boja){
 		
 	}
 	else {
-		std::cerr << "ERROR: pokušaj osvjetljavanja izvan podrucja";
+		std::cerr << "ERROR: pokuï¿½aj osvjetljavanja izvan podrucja";
 		return -1;
 	}
 }
