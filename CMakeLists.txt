@@ -55,7 +55,6 @@ function(irg_add_app target_name)
         GLFW_INCLUDE_NONE
         PROJECT_SOURCE_DIR="${project_dir}"
     )
-    target_compile_features(${target_name} PRIVATE cxx_std_11)
 
     if(MSVC)
         target_compile_options(${target_name} PRIVATE /W4)
@@ -90,6 +89,9 @@ function(irg_add_app target_name)
     set(runtime_output_dir "${CMAKE_BINARY_DIR}/${target_name}")
 
     set_target_properties(${target_name} PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
         RUNTIME_OUTPUT_DIRECTORY "${runtime_output_dir}"
     )
 
@@ -138,9 +140,14 @@ option(ASSIMP_BUILD_SAMPLES OFF)
 option(ASSIMP_BUILD_TESTS OFF)
 option(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
 option(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
+set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE BOOL "Treat assimp warnings as errors" FORCE)
 set(ASSIMP_BUILD_OBJ_EXPORTER TRUE)
 set(ASSIMP_BUILD_OBJ_IMPORTER TRUE)
 add_subdirectory(irgLab/dependencies/assimp)
+
+if(MSVC AND TARGET assimp)
+    target_compile_options(assimp PRIVATE /WX-)
+endif()
 
 add_subdirectory(irgLab/primjerGLM)
 add_subdirectory(irgLab/primjerASSIMP)
