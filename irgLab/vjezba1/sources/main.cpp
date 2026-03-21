@@ -13,12 +13,17 @@ std::vector<std::pair<int, int> >klikovi;
 
 
 void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1) {
+	int y = y0;
+	double yf = -0.5;
 	double a = (y1 - y0) / (double)(x1 - x0);
-	double b = -a * x0 + y0;
 	
 	for (int x = x0 ; x <= x1 ; x++) {
-		int y = round(a * x + b);
 		grafika.osvijetliFragment(x, y, glm::vec3(0, 0.8, 0));
+		yf += a;
+		if (yf > 0.0) {
+			yf -= 1.0;
+			y++;
+		}
 	}
 }
 
@@ -60,7 +65,7 @@ int main(int argc, char * argv[]) {
 
 		//iscrtavanje pritisnutih fragmenata
 		//ishodiste koordinatnog sustava za operacijski sustav je u gornjem lijevom kutu, a za OpenGL je u donjem lijevom, pa je potrebno okrenuti predznak
-		for (int i = 0; i < klikovi.size(); i++) {
+		for (std::size_t i = 0; i < klikovi.size(); i++) {
 			grafika.osvijetliFragment(klikovi[i].first, height - klikovi[i].second -1, glm::vec3(0.6, 0.2, 0));
 			if (i % 2 == 1) {
 				iscrtajLiniju(grafika,
