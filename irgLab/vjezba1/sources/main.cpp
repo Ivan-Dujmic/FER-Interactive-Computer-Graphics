@@ -29,6 +29,12 @@ struct Rect {
 };
 
 void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1, Rect rect) {
+	glm::vec3 color = glm::vec3(
+		0,
+		0.25,
+		std::max(0.1, std::min(0.9, std::sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)) / 40))
+	);
+
 	if (x0 > x1) {
 		swap(x0, x1);
 		swap(y0, y1);
@@ -51,7 +57,7 @@ void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1, Rect rect) 
 		if (!doSwap) {
 			for (int x = x0 ; x <= x1 ; x++) {
 				if (!odsijecanje || (x > rect.p1.x && x < rect.p2.x && y > rect.p1.y && y < rect.p2.y)) {
-					grafika.osvijetliFragment(x, y, glm::vec3(0, 1, 1));
+					grafika.osvijetliFragment(x, y, color);
 				}
 				yf += a;
 				if (yf >= 0) {
@@ -62,7 +68,7 @@ void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1, Rect rect) 
 		} else {
 			for (int x = x0 ; x <= x1 ; x++) {
 				if (!odsijecanje || (x > rect.p1.x && x < rect.p2.x && y > rect.p1.y && y < rect.p2.y)) {
-					grafika.osvijetliFragment(y, x, glm::vec3(0, 1, 1));
+					grafika.osvijetliFragment(y, x, color);
 				}
 				yf += a;
 				if (yf >= 0) {
@@ -86,7 +92,7 @@ void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1, Rect rect) 
 		if (!doSwap) {
 			for (int x = x0 ; x <= x1 ; x++) {
 				if (!odsijecanje || (x > rect.p1.x && x < rect.p2.x && y > rect.p1.y && y < rect.p2.y)) {
-					grafika.osvijetliFragment(x, y, glm::vec3(0, 1, 1));
+					grafika.osvijetliFragment(x, y, color);
 				}
 				yf += a;
 				if (yf <= 0) {
@@ -97,7 +103,7 @@ void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1, Rect rect) 
 		} else {
 			for (int x = x0 ; x <= x1 ; x++) {
 				if (!odsijecanje || (x > rect.p1.x && x < rect.p2.x && y > rect.p1.y && y < rect.p2.y)) {
-					grafika.osvijetliFragment(y, x, glm::vec3(0, 1, 1));
+					grafika.osvijetliFragment(y, x, color);
 				}
 				yf += a;
 				if (yf <= 0) {
