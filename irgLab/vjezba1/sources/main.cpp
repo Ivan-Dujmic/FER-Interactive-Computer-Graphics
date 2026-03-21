@@ -13,10 +13,13 @@ std::vector<std::pair<int, int> >klikovi;
 
 
 void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1) {
-	grafika.osvijetliFragment(x0, y0, glm::vec3(0, 0.8, 0));
-
-	//odabir varijante bresenhama i algoritam
-
+	double a = (y1 - y0) / (double)(x1 - x0);
+	double b = -a * x0 + y0;
+	
+	for (int x = x0 ; x <= x1 ; x++) {
+		int y = round(a * x + b);
+		grafika.osvijetliFragment(x, y, glm::vec3(0, 0.8, 0));
+	}
 }
 
 void klikMisa(int x, int y, int vrsta) {
@@ -57,8 +60,17 @@ int main(int argc, char * argv[]) {
 
 		//iscrtavanje pritisnutih fragmenata
 		//ishodiste koordinatnog sustava za operacijski sustav je u gornjem lijevom kutu, a za OpenGL je u donjem lijevom, pa je potrebno okrenuti predznak
-		for (int i = 0; i < klikovi.size(); i++)
+		for (int i = 0; i < klikovi.size(); i++) {
 			grafika.osvijetliFragment(klikovi[i].first, height - klikovi[i].second -1, glm::vec3(0.6, 0.2, 0));
+			if (i % 2 == 1) {
+				iscrtajLiniju(grafika,
+					klikovi[i-1].first,
+					height - klikovi[i-1].second - 1,
+					klikovi[i].first,
+					height - klikovi[i].second - 1
+				);
+			}
+		}
 
 		grafika.iscrtajRaster();
 
