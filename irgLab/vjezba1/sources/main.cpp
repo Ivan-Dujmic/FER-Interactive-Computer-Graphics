@@ -17,36 +17,86 @@ inline void swap(int &x, int &y) {
 	y = tmp;
 }
 
-void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1) {
-	bool doSwap = y1 - y0 > x1 - x0;
+inline void bresenhamUpper(Grafika &grafika, int x0, int y0, int x1, int y1) {
+	int x, y, a, yf, correction;
 
-	if (doSwap) {
-		swap(x0, y0);
-		swap(x1, y1);
-	}
-
-	int a = 2 * (y1 - y0);
-	int y = y0;
-	int yf = -(x1 - x0);
-	int correction = 2 * yf;
-
-	if (doSwap) {
+	if (y1 - y0 <= x1 - x0) {
+		a = 2 * (y1 - y0);
+		y = y0;
+		yf = -(x1 - x0);
+		correction = -2 * (x1 - x0);
 		for (int x = x0 ; x <= x1 ; x++) {
-			grafika.osvijetliFragment(y, x, glm::vec3(0, 0.8, 0));
+			grafika.osvijetliFragment(x, y, glm::vec3(0, 0.8, 0));
 			yf += a;
-			if (yf > 0) {
+			if (yf >= 0) {
 				yf += correction;
 				y++;
 			}
 		}
 	} else {
+		swap(x0, y0);
+		swap(x1, y1);
+		a = 2 * (y1 - y0);
+		y = y0;
+		yf = -(x1 - x0);
+		correction = -2 * (x1 - x0);
 		for (int x = x0 ; x <= x1 ; x++) {
-			grafika.osvijetliFragment(x, y, glm::vec3(0, 0.8, 0));
+			grafika.osvijetliFragment(y, x, glm::vec3(0, 0.8, 0));
 			yf += a;
-			if (yf > 0) {
+			if (yf >= 0) {
 				yf += correction;
 				y++;
 			}
+		}
+	}
+}
+
+inline void bresenhamLower(Grafika &grafika, int x0, int y0, int x1, int y1) {
+	int x, y, a, yf, correction;
+
+	if (-(y1 - y0) <= x1 - x0) {
+		a = 2 * (y1 - y0);
+		y = y0;
+		yf = x1 - x0;
+		correction = 2 * (x1 - x0);
+		for (int x = x0 ; x <= x1 ; x++) {
+			grafika.osvijetliFragment(x, y, glm::vec3(0, 0.8, 0));
+			yf += a;
+			if (yf <= 0) {
+				yf += correction;
+				y--;
+			}
+		}
+	} else {
+		swap(x0, y1);
+		swap(x1, y0);
+		a = 2 * (y1 - y0);
+		y = y0;
+		yf = x1 - x0;
+		correction = 2 * (x1 - x0);
+		for (int x = x0 ; x <= x1 ; x++) {
+			grafika.osvijetliFragment(y, x, glm::vec3(0, 0.8, 0));
+			yf += a;
+			if (yf <= 0) {
+				yf += correction;
+				y--;
+			}
+		}
+	}
+}
+
+void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1) {
+	if (x0 <= x1) {
+		if (y0 <= y1) {
+			bresenhamUpper(grafika, x0, y0, x1, y1);
+		} else {
+			bresenhamLower(grafika, x0, y0, x1, y1);
+		}
+	} else {
+		if (y0 >= y1) {
+			bresenhamUpper(grafika, x1, y1, x0, y0);
+		} else {
+			bresenhamLower(grafika, x1, y1, x0, y0);
 		}
 	}
 }
