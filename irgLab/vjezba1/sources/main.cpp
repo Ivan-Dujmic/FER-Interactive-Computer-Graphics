@@ -13,15 +13,16 @@ std::vector<std::pair<int, int> >klikovi;
 
 
 void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1) {
+	int a = 2 * (y1 - y0);
 	int y = y0;
-	double yf = -0.5;
-	double a = (y1 - y0) / (double)(x1 - x0);
+	int yf = -(x1 - x0);
+	int correction = 2 * yf;
 	
 	for (int x = x0 ; x <= x1 ; x++) {
 		grafika.osvijetliFragment(x, y, glm::vec3(0, 0.8, 0));
 		yf += a;
-		if (yf > 0.0) {
-			yf -= 1.0;
+		if (yf > 0) {
+			yf += correction;
 			y++;
 		}
 	}
