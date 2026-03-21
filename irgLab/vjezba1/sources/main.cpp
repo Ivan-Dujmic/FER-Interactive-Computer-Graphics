@@ -9,7 +9,8 @@
 
 #include <iostream>
 
-std::vector<std::pair<int, int> >klikovi;
+bool odsijecanje = false;
+std::vector<std::pair<int, int>> klikovi;
 
 inline void swap(int &x, int &y) {
 	int tmp = x;
@@ -39,7 +40,7 @@ void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1) {
 
 		if (!doSwap) {
 			for (int x = x0 ; x <= x1 ; x++) {
-				grafika.osvijetliFragment(x, y, glm::vec3(0, 0.8, 0));
+				grafika.osvijetliFragment(x, y, glm::vec3(0, 1, 1));
 				yf += a;
 				if (yf >= 0) {
 					yf += correction;
@@ -48,7 +49,7 @@ void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1) {
 			}
 		} else {
 			for (int x = x0 ; x <= x1 ; x++) {
-				grafika.osvijetliFragment(y, x, glm::vec3(0, 0.8, 0));
+				grafika.osvijetliFragment(y, x, glm::vec3(0, 1, 1));
 				yf += a;
 				if (yf >= 0) {
 					yf += correction;
@@ -70,7 +71,7 @@ void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1) {
 
 		if (!doSwap) {
 			for (int x = x0 ; x <= x1 ; x++) {
-				grafika.osvijetliFragment(x, y, glm::vec3(0, 0.8, 0));
+				grafika.osvijetliFragment(x, y, glm::vec3(0, 1, 1));
 				yf += a;
 				if (yf <= 0) {
 					yf += correction;
@@ -79,7 +80,7 @@ void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1) {
 			}
 		} else {
 			for (int x = x0 ; x <= x1 ; x++) {
-				grafika.osvijetliFragment(y, x, glm::vec3(0, 0.8, 0));
+				grafika.osvijetliFragment(y, x, glm::vec3(0, 1, 1));
 				yf += a;
 				if (yf <= 0) {
 					yf += correction;
@@ -91,14 +92,13 @@ void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1) {
 }
 
 void klikMisa(int x, int y, int vrsta) {
-
-	if (vrsta == 0)
-		std::cout << "lijevi:";
-	if (vrsta == 1)
-		std::cout << "desni:";
-
-	std::cout << x << " " << y<< std::endl;
-	klikovi.push_back(std::make_pair(x, y));
+	if (vrsta == 0) {
+		std::cout << "placing: " << x << " " << y << '\n';
+		klikovi.push_back(std::make_pair(x, y));
+	} else if (vrsta == 1) {
+		std::cout << "inverting odsijecanje\n";
+		odsijecanje = !odsijecanje;
+	}
 }
 
 int main(int argc, char * argv[]) {
@@ -125,6 +125,18 @@ int main(int argc, char * argv[]) {
 					grafika.osvijetliFragment(i, j, glm::vec3(0.15, 0.15, 0.2));
 			}
 
+		// odsijecanje rectangle
+		if (odsijecanje) {
+			for (int x = width / 4 ; x <= 3 * width / 4 ; x++) {
+				grafika.osvijetliFragment(x, height / 4, glm::vec3(0, 1, 0));
+				grafika.osvijetliFragment(x, 3 * height / 4, glm::vec3(0, 1, 0));
+			}
+
+			for (int y = height / 4 ; y < 3 * height / 4 ; y++) {
+				grafika.osvijetliFragment(width / 4, y, glm::vec3(0, 1, 0));
+				grafika.osvijetliFragment(3 * width / 4, y, glm::vec3(0, 1, 0));
+			}
+		}
 
 		//iscrtavanje pritisnutih fragmenata
 		//ishodiste koordinatnog sustava za operacijski sustav je u gornjem lijevom kutu, a za OpenGL je u donjem lijevom, pa je potrebno okrenuti predznak
