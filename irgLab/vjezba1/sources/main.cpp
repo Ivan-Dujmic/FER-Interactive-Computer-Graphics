@@ -10,22 +10,25 @@ The coord origin for the OS is top left
 The coord origin for OpenGL is bottom left
 */
 
+using Point = glm::ivec2;
+using Color = glm::vec3;
+using CohenCode = uint8_t;
+
 struct Rect {
-	glm::ivec2 p1;
-	glm::ivec2 p2;
+	Point p1;
+	Point p2;
 };
 
-using CohenCode = uint8_t;
-constexpr uint8_t CC_TOP =    0b1000;
-constexpr uint8_t CC_BOTTOM = 0b0100;
-constexpr uint8_t CC_RIGHT =  0b0010;
-constexpr uint8_t CC_LEFT =   0b0001;
-constexpr uint8_t CC_INSIDE = 0b0000;
+constexpr CohenCode CC_TOP =    0b1000;
+constexpr CohenCode CC_BOTTOM = 0b0100;
+constexpr CohenCode CC_RIGHT =  0b0010;
+constexpr CohenCode CC_LEFT =   0b0001;
+constexpr CohenCode CC_INSIDE = 0b0000;
 
 int width = 97;
 int height = 97;
 
-std::vector<glm::ivec2> points;
+std::vector<Point> points;
 
 bool crop = false;
 Rect cropRect = { // OpenGL coords - p1: bottom left - p2: top right
@@ -33,14 +36,14 @@ Rect cropRect = { // OpenGL coords - p1: bottom left - p2: top right
 	{ 3 * width / 4, 3 * height / 4 }
 };
 
-glm::vec3 colorClear = glm::vec3(0.0, 0.0, 0.0);
-glm::vec3 colorCheckerboard1 = glm::vec3(0.1, 0.1, 0.1);
-glm::vec3 colorCheckerboard2 = glm::vec3(0.15, 0.15, 0.2);
-glm::vec3 colorCropRect = glm::vec3(0.0, 1.0, 0.0);
-glm::vec3 colorPoint = glm::vec3(1.0, 0.0, 0.0);
+Color colorClear = Color(0.0, 0.0, 0.0);
+Color colorCheckerboard1 = Color(0.1, 0.1, 0.1);
+Color colorCheckerboard2 = Color(0.15, 0.15, 0.2);
+Color colorCropRect = Color(0.0, 1.0, 0.0);
+Color colorPoint = Color(1.0, 0.0, 0.0);
 
-glm::vec3 calcLineColor(glm::ivec2 p1, glm::ivec2 p2) {
-	return glm::vec3(
+Color calcLineColor(Point p1, Point p2) {
+	return Color(
 		0,
 		0.25,
 		std::max(0.1, std::min(0.9, std::sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y)) / 40))
@@ -53,7 +56,7 @@ inline void swap(int &x, int &y) {
 	y = tmp;
 }
 
-inline CohenCode calcCohenCode(glm::ivec2 p) {
+inline CohenCode calcCohenCode(Point p) {
 	CohenCode cc = CC_INSIDE;
 
 	if (p.y > cropRect.p2.y) {
@@ -70,7 +73,7 @@ inline CohenCode calcCohenCode(glm::ivec2 p) {
 	return cc;
 }
 
-void drawLine(Graphics &graphics, glm::ivec2 p1, glm::ivec2 p2, glm::vec3 color) {
+void drawLine(Graphics &graphics, Point p1, Point p2, Color color) {
 	// Crop rectangle
 	if (crop) {
 		CohenCode cc1 = calcCohenCode(p1);
@@ -235,7 +238,7 @@ int main(int argc, char * argv[]) {
 
 		// Draw lines
 		for (std::size_t i = 0 ; i + 1 < points.size() ; i+=2) {
-			glm::vec3 color = calcLineColor(points[i], points[i+1]);
+			Color color = calcLineColor(points[i], points[i+1]);
 
 			drawLine(graphics, points[i], points[i+1], color);
 		}
