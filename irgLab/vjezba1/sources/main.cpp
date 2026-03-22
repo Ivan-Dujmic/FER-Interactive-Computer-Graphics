@@ -38,6 +38,12 @@ Rect cropRect = { // OpenGL coords - p1: bottom left - p2: top right
 	{ 3 * width / 4, 3 * height / 4 }
 };
 
+glm::vec3 colorClear = glm::vec3(0.0, 0.0, 0.0);
+glm::vec3 colorCheckerboard1 = glm::vec3(0.1, 0.1, 0.1);
+glm::vec3 colorCheckerboard2 = glm::vec3(0.15, 0.15, 0.2);
+glm::vec3 colorCropRect = glm::vec3(0.0, 1.0, 0.0);
+glm::vec3 colorPoint = glm::vec3(1.0, 0.0, 0.0);
+
 inline void swap(int &x, int &y) {
 	int tmp = x;
 	x = y;
@@ -61,13 +67,7 @@ inline CohenCode getCohenCode(int x, int y) {
 	return cc;
 }
 
-void drawLine(Graphics &graphics, int x0, int y0, int x1, int y1) {
-	glm::vec3 color = glm::vec3(
-		0,
-		0.25,
-		std::max(0.1, std::min(0.9, std::sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)) / 40))
-	);
-
+void drawLine(Graphics &graphics, int x0, int y0, int x1, int y1, glm::vec3 color) {
 	// Crop rectangle
 	if (crop) {
 		CohenCode cc0 = getCohenCode(x0, y0);
@@ -187,6 +187,7 @@ void drawLine(Graphics &graphics, int x0, int y0, int x1, int y1) {
 
 void mouseClick(int x, int y, int type) {
 	if (type == 0) {
+		y = height - y - 1;
 		std::cout << "Placing: " << x << " " << y << '\n';
 		points.push_back(std::make_pair(x, y));
 	} else if (type == 1) {
@@ -197,7 +198,7 @@ void mouseClick(int x, int y, int type) {
 
 int main(int argc, char * argv[]) {
 	std::cout << argv[0] << std::endl;
-	Graphics graphics(width, height, glm::vec3(0, 0, 0), argv[0]);
+	Graphics graphics(width, height, colorClear, argv[0]);
 
 	graphics.registerMouseClickFunction(mouseClick);
 
@@ -208,38 +209,44 @@ int main(int argc, char * argv[]) {
 		for (int i = 0; i < height; i += 1)
 			for (int j = 0; j < width; j += 1) {
 				if ((i + j) % 2 == 0)
-					graphics.lightFragment(i, j, glm::vec3(0.1, 0.1, 0.1));
+					graphics.lightFragment(i, j, colorCheckerboard1);
 				if (i % 10 == 0 && j % 10 == 0)
-					graphics.lightFragment(i, j, glm::vec3(0.15, 0.15, 0.2));
+					graphics.lightFragment(i, j, colorCheckerboard2);
 			}
 
 		// Draw crop rectangle
 		if (crop) {
 			for (int x = cropRect.p1.x ; x <= cropRect.p2.x ; x++) {
-				graphics.lightFragment(x, cropRect.p1.y, glm::vec3(0, 1, 0));
-				graphics.lightFragment(x, cropRect.p2.y, glm::vec3(0, 1, 0));
+				graphics.lightFragment(x, cropRect.p1.y, colorCropRect);
+				graphics.lightFragment(x, cropRect.p2.y, colorCropRect);
 			}
 
 			for (int y = cropRect.p1.y ; y < cropRect.p2.y ; y++) {
-				graphics.lightFragment(cropRect.p1.x, y, glm::vec3(0, 1, 0));
-				graphics.lightFragment(cropRect.p2.x, y, glm::vec3(0, 1, 0));
+				graphics.lightFragment(cropRect.p1.x, y, colorCropRect);
+				graphics.lightFragment(cropRect.p2.x, y, colorCropRect);
 			}
 		}
 
 		// Draw lines
 		for (std::size_t i = 0; i + 1 < points.size() ; i+=2) {
-			drawLine(graphics,
-				points[i].first,
-				height - points[i].second - 1,
-				points[i+1].first,
-				height - points[i+1].second - 1
+			int x0 = points[i].first;
+			int y0 = points[i].second;
+			int x1 = points[i+1].first;
+			int y1 = points[i+1].second;
+
+			glm::vec3 color = glm::vec3(
+				0,
+				0.25,
+				std::max(0.1, std::min(0.9, std::sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)) / 40))
 			);
+
+			drawLine(graphics, x0, y0, x1, y1, color);
 		}
 
 		// Draw a pixel for the starting point of an unfinished line if it exists
 		if (points.size() % 2 == 1) {
 			std::size_t index = points.size() - 1;
-			graphics.lightFragment(points[index].first, height - points[index].second - 1, glm::vec3(1, 0, 0));
+			graphics.lightFragment(points[index].first, points[index].second, colorPoint);
 		}
 
 		graphics.drawRaster();
