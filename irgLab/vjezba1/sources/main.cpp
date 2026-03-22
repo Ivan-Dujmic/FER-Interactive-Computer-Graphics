@@ -44,13 +44,21 @@ glm::vec3 colorCheckerboard2 = glm::vec3(0.15, 0.15, 0.2);
 glm::vec3 colorCropRect = glm::vec3(0.0, 1.0, 0.0);
 glm::vec3 colorPoint = glm::vec3(1.0, 0.0, 0.0);
 
+glm::vec3 calcLineColor(int x0, int y0, int x1, int y1) {
+	return glm::vec3(
+		0,
+		0.25,
+		std::max(0.1, std::min(0.9, std::sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)) / 40))
+	);
+}
+
 inline void swap(int &x, int &y) {
 	int tmp = x;
 	x = y;
 	y = tmp;
 }
 
-inline CohenCode getCohenCode(int x, int y) {
+inline CohenCode calcCohenCode(int x, int y) {
 	CohenCode cc = CC_INSIDE;
 
 	if (y > cropRect.p2.y) {
@@ -70,8 +78,8 @@ inline CohenCode getCohenCode(int x, int y) {
 void drawLine(Graphics &graphics, int x0, int y0, int x1, int y1, glm::vec3 color) {
 	// Crop rectangle
 	if (crop) {
-		CohenCode cc0 = getCohenCode(x0, y0);
-		CohenCode cc1 = getCohenCode(x1, y1);		
+		CohenCode cc0 = calcCohenCode(x0, y0);
+		CohenCode cc1 = calcCohenCode(x1, y1);		
 
 		while (true) {
 			// The line is completely outside
@@ -104,11 +112,11 @@ void drawLine(Graphics &graphics, int x0, int y0, int x1, int y1, glm::vec3 colo
 			if (cc == cc0) {
 				x0 = x;
 				y0 = y;
-				cc0 = getCohenCode(x0, y0);
+				cc0 = calcCohenCode(x0, y0);
 			} else {
 				x1 = x;
 				y1 = y;
-				cc1 = getCohenCode(x1, y1);
+				cc1 = calcCohenCode(x1, y1);
 			}
 		}
 	}
@@ -234,11 +242,7 @@ int main(int argc, char * argv[]) {
 			int x1 = points[i+1].first;
 			int y1 = points[i+1].second;
 
-			glm::vec3 color = glm::vec3(
-				0,
-				0.25,
-				std::max(0.1, std::min(0.9, std::sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)) / 40))
-			);
+			glm::vec3 color = calcLineColor(x0, y0, x1, y1);
 
 			drawLine(graphics, x0, y0, x1, y1, color);
 		}
