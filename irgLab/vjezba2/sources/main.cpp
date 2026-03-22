@@ -10,39 +10,16 @@ The coord origin for the OS is top left
 The coord origin for OpenGL is bottom left
 */
 
-struct Point {
-	int x;
-	int y;
-};
-
-struct Rect {
-	Point p1;
-	Point p2;
-};
-
-using CohenCode = uint8_t;
-constexpr uint8_t CC_TOP =    0b1000;
-constexpr uint8_t CC_BOTTOM = 0b0100;
-constexpr uint8_t CC_RIGHT =  0b0010;
-constexpr uint8_t CC_LEFT =   0b0001;
-constexpr uint8_t CC_INSIDE = 0b0000;
-
 int width = 97;
 int height = 97;
 
 std::vector<std::pair<int, int>> points;
 
-bool crop = false;
-Rect cropRect = { // OpenGL coords - p1: bottom left - p2: top right
-	{ width / 4, height / 4 },
-	{ 3 * width / 4, 3 * height / 4 }
-};
-
 glm::vec3 colorClear = glm::vec3(0.0, 0.0, 0.0);
 glm::vec3 colorCheckerboard1 = glm::vec3(0.1, 0.1, 0.1);
 glm::vec3 colorCheckerboard2 = glm::vec3(0.15, 0.15, 0.2);
-glm::vec3 colorCropRect = glm::vec3(0.0, 1.0, 0.0);
 glm::vec3 colorPoint = glm::vec3(1.0, 0.0, 0.0);
+glm::vec3 colorLine = glm::vec3(0.0, 0.0, 1.0);
 
 inline void swap(int &x, int &y) {
 	int tmp = x;
@@ -50,69 +27,7 @@ inline void swap(int &x, int &y) {
 	y = tmp;
 }
 
-inline CohenCode getCohenCode(int x, int y) {
-	CohenCode cc = CC_INSIDE;
-
-	if (y > cropRect.p2.y) {
-		cc |= CC_TOP;
-	} else if (y < cropRect.p1.y) {
-		cc |= CC_BOTTOM;
-	}
-	if (x > cropRect.p2.x) {
-		cc |= CC_RIGHT;
-	} else if (x < cropRect.p1.x) {
-		cc |= CC_LEFT;
-	}
-
-	return cc;
-}
-
 void drawLine(Graphics &graphics, int x0, int y0, int x1, int y1, glm::vec3 color) {
-	// Crop rectangle
-	if (crop) {
-		CohenCode cc0 = getCohenCode(x0, y0);
-		CohenCode cc1 = getCohenCode(x1, y1);		
-
-		while (true) {
-			// The line is completely outside
-			if ((cc0 & cc1) != CC_INSIDE) {
-				return;
-			}
-
-			// The line is completely inside
-			if ((cc0 | cc1) == CC_INSIDE) {
-				break;
-			}
-
-			int x, y;
-			CohenCode cc = cc0 > cc1 ? cc0 : cc1;
-
-			if (cc & CC_TOP) {
-				x = x0 + (x1 - x0) * (cropRect.p2.y - y0) / (y1 - y0);
-				y = cropRect.p2.y;
-			} else if (cc & CC_BOTTOM) {
-				x = x0 + (x1 - x0) * (cropRect.p1.y - y0) / (y1 - y0);
-				y = cropRect.p1.y;
-			} else if (cc & CC_RIGHT) {
-				y = y0 + (y1 - y0) * (cropRect.p2.x - x0) / (x1 - x0);
-				x = cropRect.p2.x;
-			} else if (cc & CC_LEFT) {
-				y = y0 + (y1 - y0) * (cropRect.p1.x - x0) / (x1 - x0);
-				x = cropRect.p1.x;
-			}
-
-			if (cc == cc0) {
-				x0 = x;
-				y0 = y;
-				cc0 = getCohenCode(x0, y0);
-			} else {
-				x1 = x;
-				y1 = y;
-				cc1 = getCohenCode(x1, y1);
-			}
-		}
-	}
-
 	if (x0 > x1) {
 		swap(x0, x1);
 		swap(y0, y1);
@@ -191,8 +106,8 @@ void mouseClick(int x, int y, int type) {
 		std::cout << "Placing: " << x << " " << y << '\n';
 		points.push_back(std::make_pair(x, y));
 	} else if (type == 1) {
-		std::cout << "Inverting crop\n";
-		crop = !crop;
+		std::cout << "Finishing polygon\n";
+		// TODO
 	}
 }
 
@@ -206,24 +121,12 @@ int main(int argc, char * argv[]) {
 		graphics.clearWindow();
 
 		// Draw checkerboard pattern
-		for (int i = 0; i < height; i += 1)
+		for (int i = 0; i < height; i += 1) {
 			for (int j = 0; j < width; j += 1) {
 				if ((i + j) % 2 == 0)
 					graphics.lightFragment(i, j, colorCheckerboard1);
 				if (i % 10 == 0 && j % 10 == 0)
 					graphics.lightFragment(i, j, colorCheckerboard2);
-			}
-
-		// Draw crop rectangle
-		if (crop) {
-			for (int x = cropRect.p1.x ; x <= cropRect.p2.x ; x++) {
-				graphics.lightFragment(x, cropRect.p1.y, colorCropRect);
-				graphics.lightFragment(x, cropRect.p2.y, colorCropRect);
-			}
-
-			for (int y = cropRect.p1.y ; y < cropRect.p2.y ; y++) {
-				graphics.lightFragment(cropRect.p1.x, y, colorCropRect);
-				graphics.lightFragment(cropRect.p2.x, y, colorCropRect);
 			}
 		}
 
@@ -234,13 +137,7 @@ int main(int argc, char * argv[]) {
 			int x1 = points[i+1].first;
 			int y1 = points[i+1].second;
 
-			glm::vec3 color = glm::vec3(
-				0,
-				0.25,
-				std::max(0.1, std::min(0.9, std::sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)) / 40))
-			);
-
-			drawLine(graphics, x0, y0, x1, y1, color);
+			drawLine(graphics, x0, y0, x1, y1, colorLine);
 		}
 
 		// Draw a pixel for the starting point of an unfinished line if it exists
