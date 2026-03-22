@@ -20,13 +20,20 @@ struct Rect {
 	Point p2;
 };
 
+using CohenCode = uint8_t;
+constexpr uint8_t CC_TOP =    0b1000;
+constexpr uint8_t CC_BOTTOM = 0b0100;
+constexpr uint8_t CC_RIGHT =  0b0010;
+constexpr uint8_t CC_LEFT =   0b0001;
+constexpr uint8_t CC_INSIDE = 0b0000;
+
 int width = 97;
 int height = 97;
 
 std::vector<std::pair<int, int>> points;
 
 bool crop = false;
-Rect cropRect = { // OpenGL coords
+Rect cropRect = { // OpenGL coords - p1: bottom left - p2: top right
 	{ width / 4, height / 4 },
 	{ 3 * width / 4, 3 * height / 4 }
 };
@@ -37,12 +44,74 @@ inline void swap(int &x, int &y) {
 	y = tmp;
 }
 
+inline CohenCode getCohenCode(int x, int y) {
+	CohenCode cc = CC_INSIDE;
+
+	if (y > cropRect.p2.y) {
+		cc |= CC_TOP;
+	} else if (y < cropRect.p1.y) {
+		cc |= CC_BOTTOM;
+	}
+	if (x > cropRect.p2.x) {
+		cc |= CC_RIGHT;
+	} else if (x < cropRect.p1.x) {
+		cc |= CC_LEFT;
+	}
+
+	return cc;
+}
+
 void drawLine(Graphics &graphics, int x0, int y0, int x1, int y1) {
 	glm::vec3 color = glm::vec3(
 		0,
 		0.25,
 		std::max(0.1, std::min(0.9, std::sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)) / 40))
 	);
+
+	// Crop rectangle
+	if (crop) {
+		CohenCode cc0 = getCohenCode(x0, y0);
+		CohenCode cc1 = getCohenCode(x1, y1);		
+
+		while (true) {
+			// The line is completely outside
+			if ((cc0 & cc1) != CC_INSIDE) {
+				return;
+			}
+
+			// The line is completely inside
+			if ((cc0 | cc1) == CC_INSIDE) {
+				break;
+			}
+
+			int x, y;
+			CohenCode cc = cc0 > cc1 ? cc0 : cc1;
+
+			if (cc & CC_TOP) {
+				x = x0 + (x1 - x0) * (cropRect.p2.y - y0) / (y1 - y0);
+				y = cropRect.p2.y;
+			} else if (cc & CC_BOTTOM) {
+				x = x0 + (x1 - x0) * (cropRect.p1.y - y0) / (y1 - y0);
+				y = cropRect.p1.y;
+			} else if (cc & CC_RIGHT) {
+				y = y0 + (y1 - y0) * (cropRect.p2.x - x0) / (x1 - x0);
+				x = cropRect.p2.x;
+			} else if (cc & CC_LEFT) {
+				y = y0 + (y1 - y0) * (cropRect.p1.x - x0) / (x1 - x0);
+				x = cropRect.p1.x;
+			}
+
+			if (cc == cc0) {
+				x0 = x;
+				y0 = y;
+				cc0 = getCohenCode(x0, y0);
+			} else {
+				x1 = x;
+				y1 = y;
+				cc1 = getCohenCode(x1, y1);
+			}
+		}
+	}
 
 	if (x0 > x1) {
 		swap(x0, x1);
@@ -63,22 +132,18 @@ void drawLine(Graphics &graphics, int x0, int y0, int x1, int y1) {
 		yf = -(x1 - x0);
 		correction = 2 * yf;
 
-		if (!doSwap) {
+		if (!doSwap) { // Not steep
 			for (int x = x0 ; x <= x1 ; x++) {
-				if (!crop || (x > cropRect.p1.x && x < cropRect.p2.x && y > cropRect.p1.y && y < cropRect.p2.y)) {
-					graphics.lightFragment(x, y, color);
-				}
+				graphics.lightFragment(x, y, color);
 				yf += a;
 				if (yf >= 0) {
 					yf += correction;
 					y++;
 				}
 			}
-		} else {
+		} else { // Steep
 			for (int x = x0 ; x <= x1 ; x++) {
-				if (!crop || (x > cropRect.p1.x && x < cropRect.p2.x && y > cropRect.p1.y && y < cropRect.p2.y)) {
-					graphics.lightFragment(y, x, color);
-				}
+				graphics.lightFragment(y, x, color);
 				yf += a;
 				if (yf >= 0) {
 					yf += correction;
@@ -98,22 +163,18 @@ void drawLine(Graphics &graphics, int x0, int y0, int x1, int y1) {
 		yf = x1 - x0;
 		correction = 2 * yf;
 
-		if (!doSwap) {
+		if (!doSwap) { // Not steep
 			for (int x = x0 ; x <= x1 ; x++) {
-				if (!crop || (x > cropRect.p1.x && x < cropRect.p2.x && y > cropRect.p1.y && y < cropRect.p2.y)) {
-					graphics.lightFragment(x, y, color);
-				}
+				graphics.lightFragment(x, y, color);
 				yf += a;
 				if (yf <= 0) {
 					yf += correction;
 					y--;
 				}
 			}
-		} else {
+		} else { // Steep
 			for (int x = x0 ; x <= x1 ; x++) {
-				if (!crop || (x > cropRect.p1.x && x < cropRect.p2.x && y > cropRect.p1.y && y < cropRect.p2.y)) {
-					graphics.lightFragment(y, x, color);
-				}
+				graphics.lightFragment(y, x, color);
 				yf += a;
 				if (yf <= 0) {
 					yf += correction;
@@ -166,15 +227,13 @@ int main(int argc, char * argv[]) {
 		}
 
 		// Draw lines
-		for (std::size_t i = 0; i < points.size(); i++) {
-			if (i % 2 == 1) {
-				drawLine(graphics,
-					points[i-1].first,
-					height - points[i-1].second - 1,
-					points[i].first,
-					height - points[i].second - 1
-				);
-			}
+		for (std::size_t i = 0; i + 1 < points.size() ; i+=2) {
+			drawLine(graphics,
+				points[i].first,
+				height - points[i].second - 1,
+				points[i+1].first,
+				height - points[i+1].second - 1
+			);
 		}
 
 		// Draw a pixel for the starting point of an unfinished line if it exists
