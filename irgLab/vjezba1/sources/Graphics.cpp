@@ -1,30 +1,26 @@
-#include "Grafika.h"
+#include "Graphics.h"
 
 #include <cmath>
 #include <iostream>
 #include <string>
 
+void (*Graphics::mouse_callback_user)(int, int, int) = 0;
+glm::vec2 Graphics::cursorPosition(0, 0);
+GLFWwindow *Graphics::window = 0;
 
-void (*Grafika::mouse_callback_user)(int, int, int) = 0;
-glm::vec2 Grafika::cursorPosition(0, 0);
-GLFWwindow *Grafika::window = 0;
-
-void Grafika::mouse_button_callback(GLFWwindow * window, int button, int action, int mods)
-{
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+void Graphics::mouse_button_callback(GLFWwindow * window, int button, int action, int mods) {
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 		(*mouse_callback_user)(cursorPosition.x / 10, cursorPosition.y / 10, 0);
-	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+	} else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
 		(*mouse_callback_user)(cursorPosition.x / 10, cursorPosition.y / 10, 1);
-
+	}
 }
 
-void Grafika::cursor_position_callback(GLFWwindow * window, double xpos, double ypos)
-{
+void Graphics::cursor_position_callback(GLFWwindow * window, double xpos, double ypos) {
 	cursorPosition = glm::vec2(xpos, ypos);
 }
 
-void  Grafika::loadGlfw()
-{
+void Graphics::loadGlfw() {
 	glfwInit();
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -43,8 +39,7 @@ void  Grafika::loadGlfw()
 	glfwMakeContextCurrent(window);
 }
 
-Shader* Grafika::loadRasterShader(char* path)
-{
+Shader* Graphics::loadRasterShader(char *path) {
 	std::string sPath(path);
 	std::string pathVert;
 	std::string pathFrag;
@@ -54,13 +49,11 @@ Shader* Grafika::loadRasterShader(char* path)
 	if (pathFrag[pathFrag.size() - 1] == '/') {
 		pathVert.append("shaders/shader.vert");
 		pathFrag.append("shaders/shader.frag");
-	}
-	else if (pathFrag[pathFrag.size() - 1] == '\\') {
+	} else if (pathFrag[pathFrag.size() - 1] == '\\') {
 		pathVert.append("shaders\\shader.vert");
 		pathFrag.append("shaders\\shader.frag");
-	}
-	else {
-		std::cerr << "nepoznat format pozicije shadera";
+	} else {
+		std::cerr << "unknown shader position format";
 		exit(1);
 	}
 
@@ -68,20 +61,19 @@ Shader* Grafika::loadRasterShader(char* path)
 	return rasterShader;
 }
 
-
-
-Grafika::Grafika(int Width, int Height, glm::vec3 ClearColor, char *path):
+Graphics::Graphics(int Width, int Height, glm::vec3 ClearColor, char *path) :
 	width(Width),
 	height(Height),
 	clearColor(ClearColor)
 {
 	raster = new float[Width * Height *3];
-	for (int i =0; i < height; i++)
-		for (int j = 0; j < width; j++) {
+	for (int i = 0 ; i < height ; i++) {
+		for (int j = 0 ; j < width ; j++) {
 			raster[i*width * 3 + j * 3] = clearColor.x;
 			raster[i*width * 3 + j * 3 + 1] = clearColor.y;
 			raster[i*width * 3 + j * 3 + 2] = clearColor.z;
 		}
+	}
 
 	loadGlfw();
 
@@ -89,12 +81,9 @@ Grafika::Grafika(int Width, int Height, glm::vec3 ClearColor, char *path):
 	
 	fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
 
-
 	glClearColor(clearColor.r, clearColor.g, clearColor.b, 1);
 
 	loadRasterShader(path);
-
-	
 
 	glUniform1i(glGetUniformLocation(rasterShader->ID, "texture1"), 0);
 
@@ -102,7 +91,6 @@ Grafika::Grafika(int Width, int Height, glm::vec3 ClearColor, char *path):
 	glBindTexture(GL_TEXTURE_2D, rasterID);
 	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_FLOAT, (const void*)raster);
-
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
@@ -122,11 +110,9 @@ Grafika::Grafika(int Width, int Height, glm::vec3 ClearColor, char *path):
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-
 }
 
-Grafika::~Grafika()
-{
+Graphics::~Graphics() {
 	delete[] raster;
 	delete rasterShader;
 	glDeleteBuffers(1, &VBO);
@@ -135,39 +121,31 @@ Grafika::~Grafika()
 	glfwTerminate();
 }
 
-int Grafika::osvijetliFragment(int x, int y) {
-	return osvijetliFragment(x, y, glm::vec3(1, 1, 1));
+int Graphics::lightFragment(int x, int y) {
+	return lightFragment(x, y, glm::vec3(1, 1, 1));
 }
 
-int Grafika::osvijetliFragment(int x, int y, glm::vec3 boja){
+int Graphics::lightFragment(int x, int y, glm::vec3 color) {
 	if (x >= 0 && x < width && y >= 0 && y < height) {
-		raster[y*width * 3 + x * 3] = boja.x;
-		raster[y*width * 3 + x * 3 + 1] = boja.y;
-		raster[y*width * 3 + x * 3 + 2] = boja.z;
+		raster[y*width * 3 + x * 3] = color.x;
+		raster[y*width * 3 + x * 3 + 1] = color.y;
+		raster[y*width * 3 + x * 3 + 2] = color.z;
 		return 0;
-		
-	}
-	else {
-		std::cerr << "ERROR: pokusaj osvjetljavanja izvan podrucja";
+	} else {
+		std::cerr << "ERROR: trying to light a non-existent pixel";
 		return -1;
 	}
 }
 
-	
-
-void Grafika::pobrisiProzor()
-{
+void Graphics::clearWindow() {
 	std::fill_n(raster, width*height * 3, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-
-
-void Grafika::iscrtajRaster()
-{
-
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+void Graphics::drawRaster() {
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
+	}
 
 	//glBindTexture(GL_TEXTURE_2D, rasterID);
 	glUseProgram(rasterShader->ID);
@@ -179,20 +157,15 @@ void Grafika::iscrtajRaster()
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
 
-
 	glfwSwapBuffers(window);
 	glfwPollEvents();
-
 }
 
-bool Grafika::trebaZatvoriti()
-{
+bool Graphics::shouldClose() {
 	return glfwWindowShouldClose(window) == false;
 }
 
-int Grafika::registrirajFunkcijuZaKlikMisa(void(*Mouse_callback_user)(int, int, int))
-{
-	
+int Graphics::registerMouseClickFunction(void(*Mouse_callback_user)(int, int, int)) {
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 

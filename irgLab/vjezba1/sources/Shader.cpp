@@ -1,7 +1,7 @@
 #include "Shader.h"
 #include <iostream>
-void Shader::checkCompilerErrors(unsigned int shader, std::string type)
-{
+
+void Shader::checkCompilerErrors(unsigned int shader, std::string type) {
 	int success;
 	char infolog[1024];
 	if (type != "PROGRAM") {
@@ -11,8 +11,7 @@ void Shader::checkCompilerErrors(unsigned int shader, std::string type)
 			glGetShaderInfoLog(shader, 1024, nullptr, infolog);
 			fprintf(stderr, "ERROR::SHADER_COMPILATION_ERROR of type: %s\n%s\n-----------------------------------------------------\n", type, infolog);
 		}
-	}
-	else {
+	} else {
 		glGetProgramiv(shader, GL_LINK_STATUS, &success);
 		if (!success) {
 			glGetProgramInfoLog(shader, 1024, nullptr, infolog);
@@ -21,8 +20,7 @@ void Shader::checkCompilerErrors(unsigned int shader, std::string type)
 	}
 }
 
-Shader::Shader(const char * vertexPath, const char * fragmentPath)
-{
+Shader::Shader(const char *vertexPath, const char *fragmentPath) {
 	//std::cout << vertexPath << std::endl;
 	std::string vertexCode;
 	std::string fragmentCode;
@@ -31,8 +29,7 @@ Shader::Shader(const char * vertexPath, const char * fragmentPath)
 	// ensure ifstream objects can throw exceptions:
 	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	try
-	{
+	try {
 		// open files
 		vShaderFile.open(vertexPath);
 		fShaderFile.open(fragmentPath);
@@ -46,12 +43,9 @@ Shader::Shader(const char * vertexPath, const char * fragmentPath)
 		// convert stream into string
 		vertexCode = vShaderStream.str();
 		fragmentCode = fShaderStream.str();
-	}
-	catch (std::ifstream::failure e)
-	{
+	} catch (std::ifstream::failure e) {
 		fprintf(stderr, "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ\n");
 	}
-
 
 	const char* vShaderCode = vertexCode.c_str();
 	const char* fShaderCode = fragmentCode.c_str();
@@ -82,11 +76,9 @@ Shader::Shader(const char * vertexPath, const char * fragmentPath)
 	// delete the shaders as they're linked into our program now and no longer necessary
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
-
 }
 
-Shader::Shader(const char * vertexPath, const char * geometryPath, const char * fragmentPath)
-{
+Shader::Shader(const char *vertexPath, const char *geometryPath, const char *fragmentPath) {
 	//std::cout << vertexPath<<std::endl;
 	std::string vertexCode;
 	std::string geometryCode;
@@ -99,8 +91,7 @@ Shader::Shader(const char * vertexPath, const char * geometryPath, const char * 
 	gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	//printf("%s\n\n", vertexPath);
-	try
-	{
+	try {
 		// open files
 		//printf("%s\n\n", vertexPath);
 		vShaderFile.open(vertexPath);
@@ -119,12 +110,9 @@ Shader::Shader(const char * vertexPath, const char * geometryPath, const char * 
 		vertexCode = vShaderStream.str();
 		geometryCode = gShaderStream.str();
 		fragmentCode = fShaderStream.str();
-	}
-	catch (std::ifstream::failure e)
-	{
+	} catch (std::ifstream::failure e) {
 		fprintf(stderr, "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ\n");
 	}
-
 
 	const char* vShaderCode = vertexCode.c_str();
 	const char* gShaderCode = geometryCode.c_str();
@@ -168,30 +156,22 @@ Shader::Shader(const char * vertexPath, const char * geometryPath, const char * 
 	glDeleteShader(fragment);
 }
 
-Shader::~Shader()
-{
+Shader::~Shader() {
 	glDeleteProgram(ID);
 }
 
-void Shader::use()
-{
-
+void Shader::use() {
 	glUseProgram(ID);
 }
 
-void Shader::setUniform(const std::string & name, bool value) const
-{
+void Shader::setUniform(const std::string & name, bool value) const {
 	glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
 }
 
-void Shader::setUniform(const std::string & name, int value) const
-{
+void Shader::setUniform(const std::string & name, int value) const {
 	glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
-
 }
 
-void Shader::setUniform(const std::string & name, float value) const
-{
+void Shader::setUniform(const std::string & name, float value) const {
 	glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
-
 }
