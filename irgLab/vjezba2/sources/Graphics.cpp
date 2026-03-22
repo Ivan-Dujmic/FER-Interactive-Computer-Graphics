@@ -127,9 +127,9 @@ int Graphics::lightFragment(int x, int y) {
 
 int Graphics::lightFragment(int x, int y, glm::vec3 color) {
 	if (x >= 0 && x < width && y >= 0 && y < height) {
-		raster[y*width * 3 + x * 3] = color.x;
-		raster[y*width * 3 + x * 3 + 1] = color.y;
-		raster[y*width * 3 + x * 3 + 2] = color.z;
+		raster[y * width * 3 + x * 3] = color.x;
+		raster[y * width * 3 + x * 3 + 1] = color.y;
+		raster[y * width * 3 + x * 3 + 2] = color.z;
 		return 0;
 	} else {
 		std::cerr << "ERROR: trying to light a non-existent pixel";
@@ -173,4 +173,3 @@ int Graphics::registerMouseClickFunction(void(*Mouse_callback_user)(int, int, in
 	
 	return 0;
 }
-
