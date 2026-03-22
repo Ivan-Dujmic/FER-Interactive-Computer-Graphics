@@ -13,8 +13,8 @@ The coord origin for OpenGL is bottom left
 int width = 97;
 int height = 97;
 
-std::vector<std::vector<glm::ivec2>> polygons = {{}};
-std::size_t currPolygon = 0;
+std::vector<glm::ivec2> points;
+bool finished = false;
 
 glm::vec3 colorClear = glm::vec3(0.0, 0.0, 0.0);
 glm::vec3 colorCheckerboard1 = glm::vec3(0.1, 0.1, 0.1);
@@ -103,19 +103,22 @@ void drawLine(Graphics &graphics, glm::ivec2 p1, glm::ivec2 p2, glm::vec3 color)
 }
 
 void mouseClick(int x, int y, int type) {
-	if (type == 0) {
-		y = height - y - 1;
-		std::cout << "Placing: " << x << " " << y << '\n';
-		polygons[currPolygon].push_back({x, y});
-	} else if (type == 1) {
-		if (polygons[currPolygon].size() < 3) {
-			std::cout << "Can't finish a polygon with less than 3 points\n";
-		} else {
-			std::cout << "Finishing polygon\n";
-			polygons[currPolygon].push_back(polygons[currPolygon][0]);
-			polygons.push_back({});
-			currPolygon++;
+	if (!finished) {
+		if (type == 0) {
+			y = height - y - 1;
+			std::cout << "Placing: " << x << " " << y << '\n';
+			points.push_back({x, y});
+		} else if (type == 1) {
+			if (points.size() < 3) {
+				std::cout << "Can't finish a polygon with less than 3 points\n";
+			} else {
+				std::cout << "Finishing polygon\n";
+				points.push_back(points[0]);
+				finished = true;
+			}
 		}
+	} else {
+		// TODO: Test if the point is inside or outside the polygon 
 	}
 }
 
@@ -141,20 +144,20 @@ int main(int argc, char * argv[]) {
 		}
 
 		// Draw lines
-		for (std::size_t i = 0 ; i < polygons.size() ; i++) {
-			for (std::size_t j = 1 ; j < polygons[i].size() ; j++) {
-				drawLine(graphics, polygons[i][j-1], polygons[i][j], colorLine);
-			}
+		for (std::size_t j = 1 ; j < points.size() ; j++) {
+			drawLine(graphics, points[j-1], points[j], colorLine);
 		}
 
 		// Draw a pixel for each point of the unfinished polygon
-		for (std::size_t i = 0 ; i + 1 < polygons[currPolygon].size() ; i++) {
-			graphics.lightFragment(polygons[currPolygon][i].x, polygons[currPolygon][i].y, colorPoint);
+		if (!finished) {
+			for (std::size_t i = 0 ; i + 1 < points.size() ; i++) {
+				graphics.lightFragment(points[i].x, points[i].y, colorPoint);
+			}
+			if (points.size() > 0) {
+				graphics.lightFragment(points.back().x, points.back().y, colorLastPoint);
+			}
 		}
-		if (polygons[currPolygon].size() > 0) {
-			graphics.lightFragment(polygons[currPolygon].back().x, polygons[currPolygon].back().y, colorLastPoint);
-		}
-
+		
 		graphics.drawRaster();
 	}   
 	
