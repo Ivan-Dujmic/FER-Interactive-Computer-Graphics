@@ -223,7 +223,7 @@ void fillPoly(Graphics &graphics, Polygon poly) {
 				}
 			} else { // Non-horizontal edge
 				double x = (-poly.points[i0].e.y * y - poly.points[i0].e.z) / (double)poly.points[i0].e.x;
-				if (poly.points[i0].isLeft) {
+				if (poly.points[i0].isLeft ^ !poly.clockwise) {
 					if (L < x) {
 						L = x;
 					}
