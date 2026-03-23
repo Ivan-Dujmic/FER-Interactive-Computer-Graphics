@@ -30,19 +30,27 @@ struct Polygon {
 	bool clockwise = true;
 };
 
+struct TestPoint {
+	Point p;
+	bool inside;
+};
+
 int width = 97;
 int height = 97;
 
 Polygon polygon;
 bool finished = false;
+std::vector<TestPoint> testPoints;
 
 Color colorClear = Color(0.0, 0.0, 0.0);
 Color colorCheckerboard1 = Color(0.1, 0.1, 0.1);
 Color colorCheckerboard2 = Color(0.15, 0.15, 0.2);
-Color colorPoint = Color(0.5, 0.0, 0.0);
+Color colorPolyPoint = Color(0.5, 0.0, 0.0);
 Color colorLastPoint = Color(1.0, 0.0, 0.0);
 Color colorLine = Color(0.0, 0.0, 1.0);
 Color colorFill = Color(1.0, 0.0, 1.0);
+Color colorPointInside = Color(0.0, 1.0, 0.0);
+Color colorPointOutside = Color(1.0, 0.5, 0.0);
 
 inline void swap(int &x, int &y) {
 	int tmp = x;
@@ -148,6 +156,10 @@ void calcPolyEdgeCoefs(Polygon &poly) {
 	pe2.isLeft = p2.y < p3.y;
 }
 
+inline int halfSpaceTest(Point p, Edge e) {
+	return e.x * p.x + e.y * p.y + e.z;
+}
+
 // Checks the polygon's convexity and direction, and updates it's attributes
 // For the last added index
 // Returns true if the polygon is convex
@@ -163,15 +175,15 @@ bool calcPolyConvex(Polygon &poly) {
 	}
 
 	Edge e1 = poly.points[n - 3].e;
-	Point v1 = poly.points[n - 1].v;
+	Point p1 = poly.points[n - 1].v;
 	Edge e2 = poly.points[n - 2].e;
-	Point v2 = poly.points[0].v;
+	Point p2 = poly.points[0].v;
 	Edge e3 = poly.points[n - 1].e;
-	Point v3 = poly.points[1].v;
+	Point p3 = poly.points[1].v;
 
-	int r1 = e1.x * v1.x + e1.y * v1.y + e1.z;
-	int r2 = e2.x * v2.x + e2.y * v2.y + e2.z;
-	int r3 = e3.x * v3.x + e3.y * v3.y + e3.z;
+	int r1 = halfSpaceTest(p1, e1);
+	int r2 = halfSpaceTest(p2, e2);
+	int r3 = halfSpaceTest(p3, e3);
 	if (r1 < 0 || r2 < 0 || r3 < 0) {
 		poly.hasBelow = true;
 		poly.clockwise = true;
@@ -186,6 +198,17 @@ bool calcPolyConvex(Polygon &poly) {
 	}
 
 	return poly.convex;
+}
+
+bool isPointInPoly(Point p, Polygon poly) {
+	for (PolyElem pe : poly.points) {
+		int r = halfSpaceTest(p, pe.e);
+		if ((poly.clockwise && r > 0) || (!poly.clockwise && r < 0)) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void drawPoly(Graphics &graphics, Polygon poly) {
@@ -243,9 +266,10 @@ void fillPoly(Graphics &graphics, Polygon poly) {
 }
 
 void mouseClick(int x, int y, int type) {
+	y = height - y - 1;
+
 	if (!finished) {
 		if (type == 0) {
-			y = height - y - 1;
 			std::cout << "Placing: " << x << " " << y << '\n';
 			polygon.points.push_back({x, y});
 			calcPolyEdgeCoefs(polygon);
@@ -268,7 +292,8 @@ void mouseClick(int x, int y, int type) {
 			}
 		}
 	} else {
-		// TODO: Test if the point is inside or outside the polygon 
+		Point p{x, y};
+		testPoints.push_back({p, isPointInPoly(p, polygon)});
 	}
 }
 
@@ -300,10 +325,19 @@ int main(int argc, char * argv[]) {
 			fillPoly(graphics, polygon);
 		} else { // Draw a pixel for each vertex of the unfinished polygon
 			for (std::size_t i = 0 ; i + 1 < polygon.points.size() ; i++) {
-				graphics.lightFragment(polygon.points[i].v.x, polygon.points[i].v.y, colorPoint);
+				graphics.lightFragment(polygon.points[i].v.x, polygon.points[i].v.y, colorPolyPoint);
 			}
 			if (polygon.points.size() > 0) {
 				graphics.lightFragment(polygon.points.back().v.x, polygon.points.back().v.y, colorLastPoint);
+			}
+		}
+
+		// Draw test points
+		for (TestPoint p : testPoints) {
+			if (p.inside) {
+				graphics.lightFragment(p.p.x, p.p.y, colorPointInside);
+			} else {
+				graphics.lightFragment(p.p.x, p.p.y, colorPointOutside);
 			}
 		}
 
