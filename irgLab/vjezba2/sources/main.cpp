@@ -22,10 +22,18 @@ struct PolyElem {
 	PolyElem(int x, int y) : v(x, y), e(0), isLeft(false) {}
 };
 
+struct Polygon {
+	std::vector<PolyElem> points;
+	bool hasBelow = false;
+	bool hasAbove = false;
+	bool convex = true;
+	bool clockwise = true;
+};
+
 int width = 97;
 int height = 97;
 
-std::vector<PolyElem> points;
+Polygon polygon;
 bool finished = false;
 
 Color colorClear = Color(0.0, 0.0, 0.0);
@@ -34,6 +42,7 @@ Color colorCheckerboard2 = Color(0.15, 0.15, 0.2);
 Color colorPoint = Color(0.5, 0.0, 0.0);
 Color colorLastPoint = Color(1.0, 0.0, 0.0);
 Color colorLine = Color(0.0, 0.0, 1.0);
+Color colorFill = Color(1.0, 0.0, 1.0);
 
 inline void swap(int &x, int &y) {
 	int tmp = x;
@@ -114,63 +123,107 @@ void drawLine(Graphics &graphics, Point p1, Point p2, Color color) {
 	}
 }
 
-void calcPolyEdgeCoefs() {
-	std::size_t i0 = points.size() - 1;
+// Updates the edge coefficients for the edges made by the newest vertex of the polygon
+void calcPolyEdgeCoefs(Polygon &poly) {
+	std::size_t n = poly.points.size();
 
-	for (std::size_t i = 0 ; i < points.size() ; i++) {
-		Point p1 = points[i0].v;
-		Point p2 = points[i].v;
-
-		points[i0].e.x = p1.y - p2.y;
-		points[i0].e.y = p2.x - p1.x;
-		points[i0].e.z = p1.x * p2.y - p1.y * p2.x;
-
-		points[i0].isLeft = p1.y < p2.y;
-
-		i0 = i;
+	if (n < 2) {
+		return;
 	}
+
+	PolyElem &pe1 = poly.points[n - 2];
+	PolyElem &pe2 = poly.points[n - 1];
+	Point p1 = pe1.v;
+	Point p2 = pe2.v;
+	Point p3 = poly.points[0].v;
+
+	pe1.e.x = p1.y - p2.y;
+	pe1.e.y = p2.x - p1.x;
+	pe1.e.z = p1.x * p2.y - p1.y * p2.x;
+	pe1.isLeft = p1.y < p2.y;
+
+	pe2.e.x = p2.y - p3.y;
+	pe2.e.y = p3.x - p2.x;
+	pe2.e.z = p2.x * p3.y - p2.y * p3.x;
+	pe2.isLeft = p2.y < p3.y;
 }
 
-void drawPoly(Graphics &graphics) {
-	for (std::size_t i = 1 ; i < points.size() ; i++) {
-		drawLine(graphics, points[i-1].v, points[i].v, colorLine);
+// Checks the polygon's convexity and direction, and updates it's attributes
+// For the last added index
+// Returns true if the polygon is convex
+bool calcPolyConvex(Polygon &poly) {
+	std::size_t n = poly.points.size();
+
+	if (n < 3) {
+		return true;
+	}
+
+	if (!poly.convex) {
+		return false;
+	}
+
+	Edge e1 = poly.points[n - 3].e;
+	Point v1 = poly.points[n - 1].v;
+	Edge e2 = poly.points[n - 2].e;
+	Point v2 = poly.points[0].v;
+
+	int r1 = e1.x * v1.x + e1.y * v1.y + e1.z;
+	int r2 = e2.x * v2.x + e2.y * v2.y + e2.z;
+	if (r1 < 0 || r2 < 0) {
+		poly.hasBelow = true;
+		poly.clockwise = true;
+	} 
+	if (r1 > 0 || r2 > 0) {
+		poly.hasAbove = true;
+		poly.clockwise = false;
+	}
+
+	if (r1 == 0 || r2 == 0 || (poly.hasAbove && poly.hasBelow)) {
+		poly.convex = false;
+	}
+
+	return poly.convex;
+}
+
+void drawPoly(Graphics &graphics, Polygon poly) {
+	for (std::size_t i = 1 ; i < poly.points.size() ; i++) {
+		drawLine(graphics, poly.points[i-1].v, poly.points[i].v, colorLine);
 	}
 	if (finished) {
-		drawLine(graphics, points.back().v, points[0].v, colorLine);
+		drawLine(graphics, poly.points.back().v, poly.points[0].v, colorLine);
 	}
 }
 
-void fillPoly(Graphics &graphics) {
-	int xmin = points[0].v.x, xmax = points[0].v.x, ymin = points[0].v.y, ymax = points[0].v.y;
-	double L, D;
+void fillPoly(Graphics &graphics, Polygon poly) {
+	int xmin = poly.points[0].v.x, xmax = poly.points[0].v.x, ymin = poly.points[0].v.y, ymax = poly.points[0].v.y;
 
-	for (std::size_t i = 1 ; i < points.size() ; i++) {
-		if (xmin > points[i].v.x) xmin = points[i].v.x;
-		if (xmax < points[i].v.x) xmax = points[i].v.x;
-		if (ymin > points[i].v.y) ymin = points[i].v.y;
-		if (ymax < points[i].v.y) ymax = points[i].v.y;
+	for (std::size_t i = 1 ; i < poly.points.size() ; i++) {
+		if (xmin > poly.points[i].v.x) xmin = poly.points[i].v.x;
+		if (xmax < poly.points[i].v.x) xmax = poly.points[i].v.x;
+		if (ymin > poly.points[i].v.y) ymin = poly.points[i].v.y;
+		if (ymax < poly.points[i].v.y) ymax = poly.points[i].v.y;
 	}
 
 	for (int y = ymin ; y <= ymax ; y++) {
-		L = xmin;
-		D = xmax;
-		std::size_t i0 = points.size() - 1;
+		double L = xmin;
+		double D = xmax;
+		std::size_t i0 = poly.points.size() - 1;
 
-		for (std::size_t i = 0 ; i < points.size() ; i++) {
-			if (points[i0].e.x == 0) { // Horizonal edge
-				if (points[i0].v.y == y) {
-					if (points[i0].v.x < points[i].v.x) {
-						L = points[i0].v.x;
-						D = points[i].v.x;
+		for (std::size_t i = 0 ; i < poly.points.size() ; i0=i++) {
+			if (poly.points[i0].e.x == 0) { // Horizonal edge
+				if (poly.points[i0].v.y == y) {
+					if (poly.points[i0].v.x < poly.points[i].v.x) {
+						L = poly.points[i0].v.x;
+						D = poly.points[i].v.x;
 					} else {
-						L = points[i].v.x;
-						D = points[i0].v.x;
+						L = poly.points[i].v.x;
+						D = poly.points[i0].v.x;
 					}
 					break;
 				}
 			} else { // Non-horizontal edge
-				double x = (-points[i0].e.y * y - points[i0].e.z) / (double)points[i0].e.x;
-				if (points[i0].isLeft) {
+				double x = (-poly.points[i0].e.y * y - poly.points[i0].e.z) / (double)poly.points[i0].e.x;
+				if (poly.points[i0].isLeft) {
 					if (L < x) {
 						L = x;
 					}
@@ -180,11 +233,9 @@ void fillPoly(Graphics &graphics) {
 					}
 				}
 			}
-
-			i0 = i;
 		}
 
-		drawLine(graphics, {std::round(L), y}, {std::round(D), y}, colorLine);
+		drawLine(graphics, {std::round(L), y}, {std::round(D), y}, colorFill);
 	}
 }
 
@@ -193,14 +244,24 @@ void mouseClick(int x, int y, int type) {
 		if (type == 0) {
 			y = height - y - 1;
 			std::cout << "Placing: " << x << " " << y << '\n';
-			points.push_back({x, y});
+			polygon.points.push_back({x, y});
+			calcPolyEdgeCoefs(polygon);
+			if (polygon.convex && !calcPolyConvex(polygon)) {
+				std::cout << "Polygon is no longer convex\n";
+			}
 		} else if (type == 1) {
-			if (points.size() < 3) {
+			if (polygon.points.size() < 3) {
 				std::cout << "Can't finish a polygon with less than 3 points\n";
 			} else {
 				std::cout << "Finishing polygon\n";
 				finished = true;
-				calcPolyEdgeCoefs();
+				if (polygon.convex) {
+					if (polygon.clockwise) {
+						std::cout << "Polygon is clockwise\n";
+					} else {
+						std::cout << "Polygon is counterclockwise\n";
+					}
+				}
 			}
 		}
 	} else {
@@ -230,16 +291,16 @@ int main(int argc, char * argv[]) {
 		}
 
 		// Draw polygon lines
-		drawPoly(graphics);
+		drawPoly(graphics, polygon);
 
 		if (finished) { // Draw polygon fill
-			fillPoly(graphics);
+			fillPoly(graphics, polygon);
 		} else { // Draw a pixel for each vertex of the unfinished polygon
-			for (std::size_t i = 0 ; i + 1 < points.size() ; i++) {
-				graphics.lightFragment(points[i].v.x, points[i].v.y, colorPoint);
+			for (std::size_t i = 0 ; i + 1 < polygon.points.size() ; i++) {
+				graphics.lightFragment(polygon.points[i].v.x, polygon.points[i].v.y, colorPoint);
 			}
-			if (points.size() > 0) {
-				graphics.lightFragment(points.back().v.x, points.back().v.y, colorLastPoint);
+			if (polygon.points.size() > 0) {
+				graphics.lightFragment(polygon.points.back().v.x, polygon.points.back().v.y, colorLastPoint);
 			}
 		}
 
