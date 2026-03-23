@@ -265,6 +265,20 @@ void fillPoly(Graphics &graphics, Polygon poly) {
 	}
 }
 
+double getAngle(Point p1, Point p2, Point p3) {
+	int x1 = p1.x - p2.x;
+	int y1 = p1.y - p2.y;
+	int x2 = p3.x - p2.x;
+	int y2 = p3.y - p2.y;
+
+	double l1 = std::sqrt(x1 * x1 + y1 * y1);
+	double l2 = std::sqrt(x2 * x2 + y2 * y2);
+
+	double cosPhi = (x1 * x2 + y1 * y2) / (l1 * l2);
+
+	return std::acos(cosPhi) * 180 / M_PI;
+}
+
 void mouseClick(int x, int y, int type) {
 	y = height - y - 1;
 
@@ -276,12 +290,25 @@ void mouseClick(int x, int y, int type) {
 			if (polygon.convex && !calcPolyConvex(polygon)) {
 				std::cout << "Polygon is no longer convex\n";
 			}
+			if (polygon.points.size() >= 3) {
+				std::size_t n =  polygon.points.size();
+				std::cout << "Last angle made: " 
+						  << getAngle(polygon.points[n - 3].v, polygon.points[n - 2].v, polygon.points[n - 1].v)
+						  << '\n';
+			}
 		} else if (type == 1) {
 			if (polygon.points.size() < 3) {
 				std::cout << "Can't finish a polygon with less than 3 points\n";
 			} else {
 				std::cout << "Finishing polygon\n";
 				finished = true;
+				std::size_t n =  polygon.points.size();
+				std::cout << "Last angle made: " 
+						  << getAngle(polygon.points[n - 2].v, polygon.points[n - 1].v, polygon.points[0].v)
+						  << '\n';
+				std::cout << "Last angle made: " 
+						  << getAngle(polygon.points[n - 1].v, polygon.points[0].v, polygon.points[1].v)
+						  << '\n';
 				if (polygon.convex) {
 					if (polygon.clockwise) {
 						std::cout << "Polygon is clockwise\n";
