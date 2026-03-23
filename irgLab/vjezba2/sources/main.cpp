@@ -166,19 +166,22 @@ bool calcPolyConvex(Polygon &poly) {
 	Point v1 = poly.points[n - 1].v;
 	Edge e2 = poly.points[n - 2].e;
 	Point v2 = poly.points[0].v;
+	Edge e3 = poly.points[n - 1].e;
+	Point v3 = poly.points[1].v;
 
 	int r1 = e1.x * v1.x + e1.y * v1.y + e1.z;
 	int r2 = e2.x * v2.x + e2.y * v2.y + e2.z;
-	if (r1 < 0 || r2 < 0) {
+	int r3 = e3.x * v3.x + e3.y * v3.y + e3.z;
+	if (r1 < 0 || r2 < 0 || r3 < 0) {
 		poly.hasBelow = true;
 		poly.clockwise = true;
 	} 
-	if (r1 > 0 || r2 > 0) {
+	if (r1 > 0 || r2 > 0 || r3 > 0) {
 		poly.hasAbove = true;
 		poly.clockwise = false;
 	}
 
-	if (r1 == 0 || r2 == 0 || (poly.hasAbove && poly.hasBelow)) {
+	if (r1 == 0 || r2 == 0 || r3 == 0 || (poly.hasAbove && poly.hasBelow)) {
 		poly.convex = false;
 	}
 
