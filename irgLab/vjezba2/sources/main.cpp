@@ -19,6 +19,7 @@ struct PolyElem {
 	Point v; // Vertex coords
 	Edge e; // Edge coefficients
 	bool isLeft;
+	double invLen; // Inverse of length
 
 	PolyElem(int x, int y) : v(x, y), e(0), isLeft(false) {}
 };
@@ -49,12 +50,15 @@ Color colorCheckerboard2 = Color(0.15, 0.15, 0.2);
 Color colorPolyPoint = Color(0.5, 0.0, 0.0);
 Color colorLastPoint = Color(1.0, 0.0, 0.0);
 Color colorLine = Color(0.0, 0.0, 1.0);
-Color colorFill = Color(1.0, 0.0, 1.0);
 Color colorPointInside = Color(0.0, 1.0, 0.0);
 Color colorPointOutside = Color(1.0, 0.5, 0.0);
 
 Color calcRasterColor(double dist) {
 	return Color(dist / width, dist / width, dist / width);
+}
+
+Color calcFillColor(double dist) {
+	return Color(0.0, 0.0, std::max(0.0, 1.0 - 5 * dist / width));
 }
 
 void swap(int &x, int &y) {
@@ -63,7 +67,24 @@ void swap(int &x, int &y) {
 	y = tmp;
 }
 
-void drawLine(Graphics &graphics, Point p1, Point p2, Color color) {
+double calcDistPointPolygonInside(Point p, Polygon poly) {
+	double minDist = std::numeric_limits<double>::infinity();
+	double c = poly.clockwise ? -1.0 : 1.0;
+
+	for (PolyElem pe : poly.points) {
+		double dist = c * (pe.e.x * p.x + pe.e.y * p.y + pe.e.z) * pe.invLen;
+		if (dist < minDist) {
+			minDist = dist;
+		}
+	}
+
+	return minDist;
+}
+
+// The fill parameter decides the color
+// The fill color is based on the distance from the closest polygon edge
+// The edge color is fixed
+void drawLine(Graphics &graphics, Point p1, Point p2, bool fill = false) {
 	if (p1.x > p2.x) {
 		swap(p1.x, p2.x);
 		swap(p1.y, p2.y);
@@ -85,7 +106,7 @@ void drawLine(Graphics &graphics, Point p1, Point p2, Color color) {
 
 		if (!doSwap) { // Not steep
 			for (int x = p1.x ; x <= p2.x ; x++) {
-				graphics.lightFragment(x, y, color);
+				graphics.lightFragment(x, y, (fill ? calcFillColor(calcDistPointPolygonInside({x, y}, polygon)) : colorLine));
 				yf += a;
 				if (yf >= 0) {
 					yf += correction;
@@ -94,7 +115,7 @@ void drawLine(Graphics &graphics, Point p1, Point p2, Color color) {
 			}
 		} else { // Steep
 			for (int x = p1.x ; x <= p2.x ; x++) {
-				graphics.lightFragment(y, x, color);
+				graphics.lightFragment(y, x, (fill ? calcFillColor(calcDistPointPolygonInside({x, y}, polygon)) : colorLine));
 				yf += a;
 				if (yf >= 0) {
 					yf += correction;
@@ -116,7 +137,7 @@ void drawLine(Graphics &graphics, Point p1, Point p2, Color color) {
 
 		if (!doSwap) { // Not steep
 			for (int x = p1.x ; x <= p2.x ; x++) {
-				graphics.lightFragment(x, y, color);
+				graphics.lightFragment(x, y, (fill ? calcFillColor(calcDistPointPolygonInside({x, y}, polygon)) : colorLine));
 				yf += a;
 				if (yf <= 0) {
 					yf += correction;
@@ -125,7 +146,7 @@ void drawLine(Graphics &graphics, Point p1, Point p2, Color color) {
 			}
 		} else { // Steep
 			for (int x = p1.x ; x <= p2.x ; x++) {
-				graphics.lightFragment(y, x, color);
+				graphics.lightFragment(y, x, (fill ? calcFillColor(calcDistPointPolygonInside({x, y}, polygon)) : colorLine));
 				yf += a;
 				if (yf <= 0) {
 					yf += correction;
@@ -159,6 +180,9 @@ void calcPolyEdgeCoefs(Polygon &poly) {
 	pe2.e.y = p3.x - p2.x;
 	pe2.e.z = p2.x * p3.y - p2.y * p3.x;
 	pe2.isLeft = p2.y < p3.y;
+
+	pe1.invLen = 1 / std::sqrt(pe1.e.x * pe1.e.x + pe1.e.y * pe1.e.y);
+	pe2.invLen = 1 / std::sqrt(pe2.e.x * pe2.e.x + pe2.e.y * pe2.e.y);
 }
 
 int halfSpaceTest(Point p, Edge e) {
@@ -218,10 +242,10 @@ bool isPointInPoly(Point p, Polygon poly) {
 
 void drawPoly(Graphics &graphics, Polygon poly) {
 	for (std::size_t i = 1 ; i < poly.points.size() ; i++) {
-		drawLine(graphics, poly.points[i-1].v, poly.points[i].v, colorLine);
+		drawLine(graphics, poly.points[i-1].v, poly.points[i].v);
 	}
 	if (finished) {
-		drawLine(graphics, poly.points.back().v, poly.points[0].v, colorLine);
+		drawLine(graphics, poly.points.back().v, poly.points[0].v);
 	}
 }
 
@@ -266,7 +290,7 @@ void fillPoly(Graphics &graphics, Polygon poly) {
 			}
 		}
 
-		drawLine(graphics, {std::round(L), y}, {std::round(D), y}, colorFill);
+		drawLine(graphics, {std::round(L), y}, {std::round(D), y}, true);
 	}
 }
 
