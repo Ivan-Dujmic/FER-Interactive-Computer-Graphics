@@ -50,13 +50,13 @@ Color calcLineColor(Point p1, Point p2) {
 	);
 }
 
-inline void swap(int &x, int &y) {
+void swap(int &x, int &y) {
 	int tmp = x;
 	x = y;
 	y = tmp;
 }
 
-inline CohenCode calcCohenCode(Point p) {
+CohenCode calcCohenCode(Point p) {
 	CohenCode cc = CC_INSIDE;
 
 	if (p.y > cropRect.p2.y) {

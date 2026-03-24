@@ -2,6 +2,7 @@
 #include <cstdlib>
 
 #include <iostream>
+#include <limits>
 
 #include "Graphics.h"
 
@@ -52,7 +53,11 @@ Color colorFill = Color(1.0, 0.0, 1.0);
 Color colorPointInside = Color(0.0, 1.0, 0.0);
 Color colorPointOutside = Color(1.0, 0.5, 0.0);
 
-inline void swap(int &x, int &y) {
+Color calcRasterColor(double dist) {
+	return Color(dist / width, dist / width, dist / width);
+}
+
+void swap(int &x, int &y) {
 	int tmp = x;
 	x = y;
 	y = tmp;
@@ -156,7 +161,7 @@ void calcPolyEdgeCoefs(Polygon &poly) {
 	pe2.isLeft = p2.y < p3.y;
 }
 
-inline int halfSpaceTest(Point p, Edge e) {
+int halfSpaceTest(Point p, Edge e) {
 	return e.x * p.x + e.y * p.y + e.z;
 }
 
@@ -265,18 +270,64 @@ void fillPoly(Graphics &graphics, Polygon poly) {
 	}
 }
 
-double getAngle(Point p1, Point p2, Point p3) {
-	int x1 = p1.x - p2.x;
-	int y1 = p1.y - p2.y;
-	int x2 = p3.x - p2.x;
-	int y2 = p3.y - p2.y;
+double calcAngle(Edge e1, Edge e2) {
+	e1 *= -1;
+	double l1 = std::sqrt(e1.x * e1.x + e1.y * e1.y);
+	double l2 = std::sqrt(e2.x * e2.x + e2.y * e2.y);
 
-	double l1 = std::sqrt(x1 * x1 + y1 * y1);
-	double l2 = std::sqrt(x2 * x2 + y2 * y2);
-
-	double cosPhi = (x1 * x2 + y1 * y2) / (l1 * l2);
+	double cosPhi = (e1.x * e2.x + e1.y * e2.y) / (l1 * l2);
 
 	return std::acos(cosPhi) * 180 / M_PI;
+}
+
+double calcDistPointEdge(Point p, Point a, Point b) {
+	int dx = b.x - a.x;
+	int dy = b.y - a.y;
+	int l = dx * dx + dy * dy;
+
+	if (l == 0) {
+		double px = p.x - a.x;
+		double py = p.y - a.y;
+		return std::sqrt(px * px + py * py);
+	}
+
+	// Projection parameter
+	double t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / (double)l;
+
+	if (t < 0.0) { // Not on line, but closer to a
+		double px = p.x - a.x;
+		double py = p.y - a.y;
+		return std::sqrt(px * px + py * py);
+	} else if (t > 1.0) { // Not on line, but closer to b 
+		double px = p.x - b.x;
+		double py = p.y - b.y;
+		return std::sqrt(px * px + py * py);
+	}
+
+	// Projection on line
+	double projX = a.x + t * dx;
+	double projY = a.y + t * dy;
+
+	double px = p.x - projX;
+	double py = p.y - projY;
+
+	return std::sqrt(px * px + py * py);
+}
+
+double calcDistPointPolygon(Point p, Polygon poly) {
+	std::size_t n = poly.points.size();
+	double minDist = std::numeric_limits<double>::infinity();
+	std::size_t i0 = n - 1;
+
+	for (std::size_t i = 0 ; i < n ; i++) {
+		double dist = calcDistPointEdge(p, poly.points[i0].v, poly.points[i].v);
+		if (dist < minDist) {
+			minDist = dist;
+		}
+		i0 = i;
+	}
+
+	return minDist;
 }
 
 void mouseClick(int x, int y, int type) {
@@ -293,7 +344,7 @@ void mouseClick(int x, int y, int type) {
 			if (polygon.points.size() >= 3) {
 				std::size_t n =  polygon.points.size();
 				std::cout << "Last angle made: " 
-						  << getAngle(polygon.points[n - 3].v, polygon.points[n - 2].v, polygon.points[n - 1].v)
+						  << calcAngle(polygon.points[n - 3].e, polygon.points[n - 2].e)
 						  << '\n';
 			}
 		} else if (type == 1) {
@@ -304,10 +355,10 @@ void mouseClick(int x, int y, int type) {
 				finished = true;
 				std::size_t n =  polygon.points.size();
 				std::cout << "Last angle made: " 
-						  << getAngle(polygon.points[n - 2].v, polygon.points[n - 1].v, polygon.points[0].v)
+						  << calcAngle(polygon.points[n - 2].e, polygon.points[n - 1].e)
 						  << '\n';
 				std::cout << "Last angle made: " 
-						  << getAngle(polygon.points[n - 1].v, polygon.points[0].v, polygon.points[1].v)
+						  << calcAngle(polygon.points[n - 1].e, polygon.points[0].e)
 						  << '\n';
 				if (polygon.convex) {
 					if (polygon.clockwise) {
@@ -333,14 +384,23 @@ int main(int argc, char * argv[]) {
 	while (graphics.shouldClose()) {
 		graphics.clearWindow();
 
-		// Draw checkerboard pattern
-		for (int i = 0 ; i < height ; i += 1) {
-			for (int j = 0 ; j < width ; j += 1) {
-				if ((i + j) % 2 == 0) {
-					graphics.lightFragment(i, j, colorCheckerboard1);
+		if (finished) {
+			// Color background pixels based on the distance from the closest edge of the polygon
+			for (int i = 0 ; i < height ; i += 1) {
+				for (int j = 0 ; j < width ; j += 1) {
+					graphics.lightFragment(i, j, calcRasterColor(calcDistPointPolygon({i, j}, polygon)));
 				}
-				if (i % 10 == 0 && j % 10 == 0) {
-					graphics.lightFragment(i, j, colorCheckerboard2);
+			}
+		} else {
+			// Draw checkerboard pattern
+			for (int i = 0 ; i < height ; i += 1) {
+				for (int j = 0 ; j < width ; j += 1) {
+					if ((i + j) % 2 == 0) {
+						graphics.lightFragment(i, j, colorCheckerboard1);
+					}
+					if (i % 10 == 0 && j % 10 == 0) {
+						graphics.lightFragment(i, j, colorCheckerboard2);
+					}
 				}
 			}
 		}
