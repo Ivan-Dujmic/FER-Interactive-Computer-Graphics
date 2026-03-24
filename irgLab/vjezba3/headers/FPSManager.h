@@ -11,9 +11,7 @@
 #endif
 
 
-class FPSManager
-{
-
+class FPSManager {
 private:
 	GLFWwindow *window;
 
@@ -44,7 +42,6 @@ private:
 	void init(GLFWwindow *Window, double theTargetFps, bool theVerboseSetting);
 
 public:
-
 	// Single parameter constructor - just set a desired framerate and let it go.
 	// Note: No FPS reporting by default, although you can turn it on or off later with the setVerbose(true/false) method
 	FPSManager(GLFWwindow *window, int theTargetFps);
@@ -55,7 +52,6 @@ public:
 	// Three parameter constructor which sets a desired framerate, how often to report, and the window title to append the FPS to
 	FPSManager(GLFWwindow *window, int theTargetFps, float theReportInterval, std::string theWindowTitle);
 	
-
 	// Getter and setter for the verbose property
 	bool getVerbose();
 	void setVerbose(bool theVerboseValue);
@@ -74,5 +70,4 @@ public:
 	double enforceFPS(bool shouldSleep);
 	
 	int getFrameCount();
-
 };
