@@ -211,17 +211,14 @@ int main(int argc, char * argv[]) {
 
 		glUseProgram(squareShader->ID);
 			glUniform3f(squareVarLocUniColor, currentColor.r, currentColor.g, currentColor.b);
-
 			glBindVertexArray(VAOsquare);
 				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			glBindVertexArray(0);
 
-		if (vertices.size() >= 3) {
-			glUseProgram(triangleShader->ID);
-				glBindVertexArray(VAOtriangle);
-					glDrawElements(GL_TRIANGLES, triangles.size(), GL_UNSIGNED_INT, 0);
-				glBindVertexArray(0);
-		}
+		glUseProgram(triangleShader->ID);
+			glBindVertexArray(VAOtriangle);
+				glDrawElements(GL_TRIANGLES, triangles.size(), GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
