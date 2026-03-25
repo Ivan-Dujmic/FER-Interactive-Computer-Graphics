@@ -21,31 +21,31 @@ void Shader::checkCompilerErrors(unsigned int shader, std::string type) {
 	}
 }
 
-Shader::Shader(const char * vertexPath, const char * fragmentPath) {
+Shader::Shader(const char *vertexPath, const char *fragmentPath) {
 	//std::cout << vertexPath << std::endl;
 	std::string vertexCode;
 	std::string fragmentCode;
 	std::ifstream vShaderFile;
 	std::ifstream fShaderFile;
 
-	// ensure ifstream objects can throw exceptions:
+	// Ensure ifstream objects can throw exceptions:
 	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	try {
-		// open files
+		// Open files
 		vShaderFile.open(vertexPath);
 		fShaderFile.open(fragmentPath);
 		std::stringstream vShaderStream, fShaderStream;
 
-		// read file's buffer contents into streams
+		// Read file's buffer contents into streams
 		vShaderStream << vShaderFile.rdbuf();
 		fShaderStream << fShaderFile.rdbuf();
 
-		// close file handlers
+		// Close file handlers
 		vShaderFile.close();
 		fShaderFile.close();
 
-		// convert stream into string
+		// Convert stream into string
 		vertexCode = vShaderStream.str();
 		fragmentCode = fShaderStream.str();
 	} catch (std::ifstream::failure e) {
@@ -60,26 +60,26 @@ Shader::Shader(const char * vertexPath, const char * fragmentPath) {
 	int success;
 	char infoLog[512];
 
-	// vertex shader
-	vertex = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex, 1, &vShaderCode, NULL);
-	glCompileShader(vertex);
+	// Vertex shader
+	vertex = glCreateShader(GL_VERTEX_SHADER); // Create object
+	glShaderSource(vertex, 1, &vShaderCode, NULL); // Pass source code to OpenGL
+	glCompileShader(vertex); // Compile
 	checkCompilerErrors(vertex, "VERTEX");
 
-	// fragment Shader
-	fragment = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment, 1, &fShaderCode, NULL);
-	glCompileShader(fragment);
+	// Fragment shader
+	fragment = glCreateShader(GL_FRAGMENT_SHADER); // Create object
+	glShaderSource(fragment, 1, &fShaderCode, NULL); // Pass source code to OpenGL
+	glCompileShader(fragment); // Compile
 	checkCompilerErrors(fragment, "FRAGMENT");
 
-	// shader Program
+	// Shader program
 	ID = glCreateProgram();
 	glAttachShader(ID, vertex);
 	glAttachShader(ID, fragment);
 	glLinkProgram(ID);
 	checkCompilerErrors(ID, "PROGRAM");
 
-	// delete the shaders as they're linked into our program now and no longer necessary
+	// Delete the shaders as they're linked into our program now and no longer necessary
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 }
@@ -89,7 +89,7 @@ Shader::~Shader() {
 }
 
 void Shader::use() {
-	glUseProgram(ID);
+	glUseProgram(ID); // Makes this shader program active for the subsequent drawing calls
 }
 
 void Shader::setUniform(const std::string &name, bool value) const {
