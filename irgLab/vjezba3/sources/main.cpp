@@ -32,22 +32,12 @@ int height = 500;
 
 glm::vec2 cursorPos = {0.0, 0.0};
 
-std::vector<glm::vec2> vertices = {
-	{0.2, 0.5},
-	{0.7, 0.7},
-	{-0.3, -0.2},
-	{0.8, -0.7}
-};
-std::vector<glm::vec3> colors = {
-	{0, 0, 0},
-	{0, 0, 0},
-	{1, 0, 0},
-	{0, 0, 1}
-};
-std::vector<GLuint> triangles = {
-	0, 1, 2,
-	1, 2, 3
-};
+GLuint VBOtrianglePos;
+GLuint VBOtriangleColor;
+GLuint EBOtriangle;
+std::vector<glm::vec2> vertices;
+std::vector<glm::vec3> colors;
+std::vector<GLuint> triangles;
 
 glm::vec3 currentColor = {1.0, 1.0, 1.0};
 ColorPicker selectedColor = RED;
@@ -97,9 +87,9 @@ void mousePositionCallback(GLFWwindow *window, double x, double y) {
 
 void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
 	if (action == GLFW_PRESS) {
-		std::cout << "Click: " << cursorPos.x << ' ' << height - cursorPos.y << '\n';
 		float x = (cursorPos.x / width) * 2.0 - 1.0;
 		float y = ((height - cursorPos.y) / height) * 2.0 - 1.0;
+		std::cout << "Click: " << x << ' ' << y << '\n';
 		vertices.push_back({x, y});
 		colors.push_back(currentColor);
 		std::size_t n  = vertices.size();
@@ -108,6 +98,13 @@ void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
 			triangles.push_back(n - 2);
 			triangles.push_back(n - 1);
 		}
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBOtrianglePos);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec2), vertices.data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, VBOtriangleColor);
+		glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec3), colors.data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOtriangle);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangles.size() * sizeof(GLuint), triangles.data(), GL_STATIC_DRAW);
 	}
 }
 
@@ -194,9 +191,6 @@ int main(int argc, char * argv[]) {
 
 	Shader *triangleShader = loadShader(argv[0], "triangle");
 	GLuint VAOtriangle;
-	GLuint VBOtrianglePos;
-	GLuint VBOtriangleColor;
-	GLuint EBOtriangle;
 	glGenVertexArrays(1, &VAOtriangle);
 	glGenBuffers(1, &VBOtrianglePos);
 	glGenBuffers(1, &VBOtriangleColor);
@@ -204,15 +198,12 @@ int main(int argc, char * argv[]) {
 
 	glBindVertexArray(VAOtriangle);
 		glBindBuffer(GL_ARRAY_BUFFER, VBOtrianglePos);
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec2), vertices.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, VBOtriangleColor);
-		glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec3), colors.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 		glEnableVertexAttribArray(1);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOtriangle);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangles.size() * sizeof(GLuint), triangles.data(), GL_STATIC_DRAW);
 	glBindVertexArray(0);
 
 	while (glfwWindowShouldClose(window) == false) {
