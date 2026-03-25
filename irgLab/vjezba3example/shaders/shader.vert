@@ -8,5 +8,5 @@ uniform mat4 tMatrix; // Transformation matrix
 
 void main() {
 	color = aCol;
-    gl_Position = tMatrix*vec4(aPos, 1.0); // Transform the vertex
+    gl_Position = tMatrix * vec4(aPos, 1.0); // Transform the vertex
 }

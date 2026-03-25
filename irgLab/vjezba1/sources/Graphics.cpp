@@ -8,7 +8,7 @@ void (*Graphics::mouse_callback_user)(int, int, int) = 0;
 glm::vec2 Graphics::cursorPosition(0, 0);
 GLFWwindow *Graphics::window = 0;
 
-void Graphics::mouse_button_callback(GLFWwindow * window, int button, int action, int mods) {
+void Graphics::mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 		(*mouse_callback_user)(cursorPosition.x / 10, cursorPosition.y / 10, 0);
 	} else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
@@ -16,7 +16,7 @@ void Graphics::mouse_button_callback(GLFWwindow * window, int button, int action
 	}
 }
 
-void Graphics::cursor_position_callback(GLFWwindow * window, double xpos, double ypos) {
+void Graphics::cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
 	cursorPosition = glm::vec2(xpos, ypos);
 }
 

@@ -12,8 +12,37 @@
 
 #include <iostream>
 
+enum ColorPicker {
+	RED, // 0
+	GREEN, // 1
+	BLUE // 2
+};
+
+std::string colorString(ColorPicker color) {
+	switch (color) {
+		case RED: return "RED";
+		case GREEN: return "GREEN";
+		case BLUE: return "BLUE";
+		default: return "UNKNOWN";
+	}
+}
+
 int width = 500;
 int height = 500;
+
+glm::vec2 cursorPos = {0.0, 0.0};
+
+std::vector<glm::vec2> vertices;
+std::vector<glm::vec3> colors;
+
+glm::vec3 currentColor = {1.0, 1.0, 1.0};
+ColorPicker selectedColor = RED;
+std::vector<glm::vec2> palleteVertices = {
+	{-0.9, 0.9},
+	{-0.8, 0.9},
+	{-0.9, 0.8},
+	{-0.8, 0.8}
+};
 
 Shader* loadShader(char *path, char *name) {
 	std::string sPath(path);
@@ -41,206 +70,128 @@ Shader* loadShader(char *path, char *name) {
 	return new Shader(pathVert.c_str(), pathFrag.c_str());
 }
 
-void framebuffer_size_callback(GLFWwindow *window, int Width, int Height) {
+void framebufferSizeCallback(GLFWwindow *window, int Width, int Height) {
 	width = Width;
 	height = Height;
 
-	// Defines the portion of the window OpenGL will draw into
-	// (0, 0, width, height) maps the range [0, width]x[0, height] to [-1, 1]x[-1, 1] (normalized device coordinates)
 	glViewport(0, 0, width, height);
+}
+
+void mousePositionCallback(GLFWwindow *window, double x, double y) {
+	cursorPos = {x, y};
+}
+
+void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
+	if (action == GLFW_PRESS) {
+		vertices.push_back({cursorPos.x, height - cursorPos.y});
+		colors.push_back(currentColor);
+		std::cout << "Click: " << cursorPos.x << ' ' << height - cursorPos.y << '\n';
+	}
+}
+
+void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+	if (action == GLFW_PRESS) {
+		float value;
+		switch (key) {
+			case GLFW_KEY_R:
+				std::cout << "Changing " << colorString(RED) << " value" << std::endl;
+				selectedColor = RED;
+				break;
+
+			case GLFW_KEY_G:
+				std::cout << "Changing " << colorString(GREEN) << " value" << std::endl;
+				selectedColor = GREEN;
+				break;
+				
+			case GLFW_KEY_B:
+				std::cout << "Changing " << colorString(BLUE) << " value" << std::endl;
+				selectedColor = BLUE;
+				break;
+				
+			case GLFW_KEY_A:
+				value = currentColor[selectedColor];
+				currentColor[selectedColor] = (value < 1.0) ? value + 0.1 : 0.0;
+				std::cout << colorString(selectedColor) << " value is now " << currentColor[selectedColor] << std::endl;
+				break;
+				
+			case GLFW_KEY_S:
+				value = currentColor[selectedColor];
+				currentColor[selectedColor] = (value > 0.0) ? value - 0.1 : 1.0;
+				std::cout << selectedColor << " value is now " << currentColor[selectedColor] << std::endl;
+				break;
+		}
+	}
 }
   
 int main(int argc, char * argv[]) {
 	std::cout << argv[0] << std::endl;
-	/*********************************************************************************************/
-	// Setting OpenGL context, fetching available OpenGL commands
 
-	glfwInit(); // Initialize GLFW before we can use GLFW functions
+	glfwInit();
 
-	// Configure the window before creating it
-	// We could leave these hints out and defaults would be used
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-#ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
 
-	// Creates a window with all the previously set hints (context) applied
 	GLFWwindow* window = glfwCreateWindow(width, height, "Task 3", nullptr, nullptr);
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to Create OpenGL Context");
 		exit(EXIT_FAILURE);
 	}
-	glfwMakeContextCurrent(window); // All the following OpenGL calls refer to this context
+	glfwMakeContextCurrent(window);
 
-	// OpenGL function pointers have to be loaded at runtime
-	// This has to be called after some context is created and set as current
-	// Could also use gladLoadGL()
-	// Glad uses glfwGetProcAddress to query function addresses from the current context
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		fprintf(stderr, "Failed to initialize GLAD");
 		exit(-1);
 	}
 	fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
 
-	glEnable(GL_DEPTH_TEST); // Track Z-index for every pixel
-	glDepthFunc(GL_LESS); // Set comparison function for depth testing (if it's less than the current depth in buffer)
+	glClearColor(0.0, 0.0, 0.0, 1);
 
-	glEnable(GL_CULL_FACE); // Remove obstructed polygons (triangles facing a certain direction)
-	glCullFace(GL_BACK); // Which face should be culled (back is also the default)
-
-	glClearColor(0.15, 0.1, 0.1, 1); // Sets the color for the clear screen command
-
-	 // 0 means don't wait after drawing (no vsync)
-	 // 1 would sync to monitor refresh rate
-	 // 2 would be half the monitor refresh rate, but values above 1 are ignored on many systems
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 
 	FPSManager fpsManager(window, 60, 1.0, "Task 3");
 
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	
-	/*********************************************************************************************/
-	// Indexed vertices and colors in separate arrays. Concrete data
+	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+	glfwSetCursorPosCallback(window, mousePositionCallback);
+	glfwSetMouseButtonCallback(window, mouseButtonCallback);
+	glfwSetKeyCallback(window, keyCallback);
 
-	// Each row is a single coordinate (x, y, z)
-	float indexedVertices[6 * 3] = {
-		-1, -1, 0,
-		1, -1, 0,
-		0, 1, 0,
-		-0.4, -0.1, 0,
-		0.4, -0.1, 0,
-		0, -0.9, 0
-	};
+	Shader *squareShader = loadShader(argv[0], "square");
+	GLint squareVarLocUniColor = glGetUniformLocation(squareShader->ID, "uColor");
 
-	// Each row is a single color (r, g, b) related to the vertex at the same position in the last array
-	float indexedColors[6 * 3] = {
-		1, 0, 0,
-		0, 1, 0,
-		0, 0, 1,
-		0, 1, 1,
-		1, 0, 1,
-		1, 1, 0
-	};
+	GLuint VAOsquare;
+	GLuint VBOsquare;
 
-	// Each row is a single triangle
-	// It references the vertices in indexedVertices
-	unsigned int indices[4 * 3] = {
-		0, 5, 3,
-		3, 5, 4,
-		5, 1, 4,
-		3, 4, 2
-	};
+	glGenVertexArrays(1, &VAOsquare);
+	glGenBuffers(1, &VBOsquare);
 
-	// Load shader and fetch uniform variables
-	Shader *shader = loadShader(argv[0], "shader");
-	GLint locUniformVar = glGetUniformLocation(shader->ID, "tMatrix");
-
-	/*********************************************************************************************/
-	// Data transfer and data format
-	// Buffer generation
-	GLuint VAO; // Vertex array object (how vertex data is interpreted)
-	GLuint VBO[2]; // Vertex buffer object (vertex data - positions and colors)
-	GLuint EBO; // Element buffer object (uses VBO by index)
-
-	// Generate IDs
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(2, VBO);
-	glGenBuffers(1, &EBO);
-
-	glBindVertexArray(VAO); // The following setup gets store inside this VAO
-		// Set VBO[0] as current array buffer
-		glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-		// Allocate GPU memory & copy indexedVertices into it
-		glBufferData(GL_ARRAY_BUFFER, sizeof(indexedVertices), indexedVertices, GL_STATIC_DRAW);
-		// Zeroth position, vec3, type float, don't normalize, stride of 3 floats, no offset
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		
-		// Set VBO[1] as current array buffer
-		glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-		// Allocate GPU memory & copy indexedColors into it
-		glBufferData(GL_ARRAY_BUFFER, sizeof(indexedColors), indexedColors, GL_STATIC_DRAW);
-		// First position, vec3, type float, don't normalize, stride of 3 floats, no offset
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-		// Enable the set attributes
+	glBindVertexArray(VAOsquare);
+		glBindBuffer(GL_ARRAY_BUFFER, VBOsquare);
+		glBufferData(GL_ARRAY_BUFFER, palleteVertices.size() * sizeof(glm::vec2), palleteVertices.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
 		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
+	glBindVertexArray(0);
 
-		// Index buffer - only one GL_ELEMENT_ARRAY_BUFFER per VAO
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	glBindVertexArray(0); // We are no longer modifying this VAO
+	//Shader *triangleShader = loadShader(argv[0], "triangle");
 
-	/*********************************************************************************************/
-	// Each matrix represents a model transform for one instance
-	// Create a transformation field that places the objects in a 4x4 grid
-
-	glm::mat4 identityMatrix = glm::mat4(1);
-	glm::mat4 scalingMatrix = glm::scale(identityMatrix, glm::vec3(0.25, 0.25, 0.25)); // Downscale x4
-
-	glm::mat4 transformationField[32]; // 32 rotation steps
-	
-	glm::vec3 rotationAxis = glm::vec3(1, 0, 0); // Rotating around the x axis
-	float rotationAngle = M_PI / 32;
-
-	int counter = 0;
-	// Place into 16 locations non-overlapping positions on screen
-	// The first one is identical for each
-	// The second one has a different rotation for each (+ z flipped)
-	for (float i = -1 ; i < 1 ; i += 0.5) {
-		for (float j = -1 ; j < 1 ; j += 0.5, counter++) {
-			transformationField[counter] = glm::translate(identityMatrix, glm::vec3(j + 0.25, i + 0.25 , 0)) * scalingMatrix;
-
-			transformationField[counter + 16] = glm::translate(identityMatrix, glm::vec3(j + 0.25, i + 0.25, 0)) *
-												glm::rotate(identityMatrix, counter * rotationAngle, rotationAxis) * 
-												glm::rotate(identityMatrix, (float)M_PI, glm::vec3(0, 0, 1)) *
-												scalingMatrix;
-		}
-	}
-
-	/*********************************************************************************************/
-	// Main display loop
 	while (glfwWindowShouldClose(window) == false) {
-		float deltaTime = (float)fpsManager.enforceFPS(false); // Time since last frame (make animation framerate independent)
+		glClear(GL_COLOR_BUFFER_BIT);
 
-		/****************************/
-		// Refresh data
-		transformationField[28] = transformationField[28]* glm::rotate(identityMatrix, deltaTime * (float)M_PI / 4, glm::vec3(0, 0, 1));
+		glUseProgram(squareShader->ID);
 
-		// Clear color buffer (wipe image) and clear depth buffer (z-index)
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glUniform3f(squareVarLocUniColor, currentColor.r, currentColor.g, currentColor.b);
 
-		/****************************/
-		// Draw
-		// For each object instance we send a draw command
-		// Model data stays on the GPU, we only change the uniform variable
-		glUseProgram(shader->ID); // Use this shader program for upcoming draw calls (shader.frag + shader.vert)
-
-		glBindVertexArray(VAO); // Restores the earlier attribute setup
-			for (int i = 0 ; i < 32 ; i++) {
-				// Location of tMatrix, one matrix, don't transpose, pointer to matrix data
-				glUniformMatrix4fv(locUniformVar, 1, GL_FALSE, &transformationField[i][0][0]);
-				// Interpret indices as triangles, index count, index type, EBO offset
-				glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);  
-			}
+		glBindVertexArray(VAOsquare);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
-		glfwPollEvents(); // Handle keyboard, mouse, window events...
+		glfwPollEvents();
 
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) { // ESC key closes window
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 			glfwSetWindowShouldClose(window, true);
 		}
-	}   
-		
-	// Cleanup
-	delete shader;
-	glDeleteBuffers(2, VBO);
-	glDeleteBuffers(1, &EBO);
-	glDeleteVertexArrays(1, &VAO);
+	}
 
 	glfwTerminate();
 
