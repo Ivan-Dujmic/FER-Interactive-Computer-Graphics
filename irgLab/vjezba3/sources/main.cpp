@@ -32,8 +32,22 @@ int height = 500;
 
 glm::vec2 cursorPos = {0.0, 0.0};
 
-std::vector<glm::vec2> vertices;
-std::vector<glm::vec3> colors;
+std::vector<glm::vec2> vertices = {
+	{0.2, 0.5},
+	{0.7, 0.7},
+	{-0.3, -0.2},
+	{0.8, -0.7}
+};
+std::vector<glm::vec3> colors = {
+	{0, 0, 0},
+	{0, 0, 0},
+	{1, 0, 0},
+	{0, 0, 1}
+};
+std::vector<GLuint> triangles = {
+	0, 1, 2,
+	1, 2, 3
+};
 
 glm::vec3 currentColor = {1.0, 1.0, 1.0};
 ColorPicker selectedColor = RED;
@@ -83,9 +97,17 @@ void mousePositionCallback(GLFWwindow *window, double x, double y) {
 
 void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
 	if (action == GLFW_PRESS) {
-		vertices.push_back({cursorPos.x, height - cursorPos.y});
-		colors.push_back(currentColor);
 		std::cout << "Click: " << cursorPos.x << ' ' << height - cursorPos.y << '\n';
+		float x = (cursorPos.x / width) * 2.0 - 1.0;
+		float y = ((height - cursorPos.y) / height) * 2.0 - 1.0;
+		vertices.push_back({x, y});
+		colors.push_back(currentColor);
+		std::size_t n  = vertices.size();
+		if (n >= 3) {
+			triangles.push_back(n - 3);
+			triangles.push_back(n - 2);
+			triangles.push_back(n - 1);
+		}
 	}
 }
 
@@ -158,10 +180,8 @@ int main(int argc, char * argv[]) {
 
 	Shader *squareShader = loadShader(argv[0], "square");
 	GLint squareVarLocUniColor = glGetUniformLocation(squareShader->ID, "uColor");
-
 	GLuint VAOsquare;
 	GLuint VBOsquare;
-
 	glGenVertexArrays(1, &VAOsquare);
 	glGenBuffers(1, &VBOsquare);
 
@@ -172,18 +192,45 @@ int main(int argc, char * argv[]) {
 		glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
 
-	//Shader *triangleShader = loadShader(argv[0], "triangle");
+	Shader *triangleShader = loadShader(argv[0], "triangle");
+	GLuint VAOtriangle;
+	GLuint VBOtrianglePos;
+	GLuint VBOtriangleColor;
+	GLuint EBOtriangle;
+	glGenVertexArrays(1, &VAOtriangle);
+	glGenBuffers(1, &VBOtrianglePos);
+	glGenBuffers(1, &VBOtriangleColor);
+	glGenBuffers(1, &EBOtriangle);
+
+	glBindVertexArray(VAOtriangle);
+		glBindBuffer(GL_ARRAY_BUFFER, VBOtrianglePos);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec2), vertices.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, VBOtriangleColor);
+		glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec3), colors.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOtriangle);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangles.size() * sizeof(GLuint), triangles.data(), GL_STATIC_DRAW);
+	glBindVertexArray(0);
 
 	while (glfwWindowShouldClose(window) == false) {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(squareShader->ID);
+			glUniform3f(squareVarLocUniColor, currentColor.r, currentColor.g, currentColor.b);
 
-		glUniform3f(squareVarLocUniColor, currentColor.r, currentColor.g, currentColor.b);
+			glBindVertexArray(VAOsquare);
+				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			glBindVertexArray(0);
 
-		glBindVertexArray(VAOsquare);
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		glBindVertexArray(0);
+		if (vertices.size() >= 3) {
+			glUseProgram(triangleShader->ID);
+				glBindVertexArray(VAOtriangle);
+					glDrawElements(GL_TRIANGLES, triangles.size(), GL_UNSIGNED_INT, 0);
+				glBindVertexArray(0);
+		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

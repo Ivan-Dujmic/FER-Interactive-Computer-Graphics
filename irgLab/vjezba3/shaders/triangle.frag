@@ -1,6 +1,6 @@
 #version 460 core
 
-in vec3 vColor;
+flat in vec3 vColor;
 
 out vec4 fColor;
 
