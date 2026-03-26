@@ -104,7 +104,7 @@ public:
 
 class Renderer {
 private:
-	Shader* squareShader;
+	Shader *squareShader;
 	GLuint VAOsquare, VBOsquare;
 	GLint squareVarLocUniColor;
 	std::vector<glm::vec2> palleteVertices = {
@@ -114,8 +114,11 @@ private:
         {-0.8f, 0.8f}
     };
 
-	Shader* triangleShader;
+	Shader *triangleShader;
 	GLuint VAOtriangle, VBOtrianglePos, VBOtriangleColor, EBOtriangle;
+
+	Shader *lineShader;
+	GLuint VAOline, VBOline;
 	
 	Shader* loadShader(const char *path, const char *name) {
 		std::string sPath(path);
@@ -171,11 +174,25 @@ public:
 			glEnableVertexAttribArray(1);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOtriangle);
 		glBindVertexArray(0);
+
+		lineShader = loadShader(path, "line");
+
+		glLineWidth(5.0f);
+
+		glGenVertexArrays(1, &VAOline);
+		glGenBuffers(1, &VBOline);
+
+		glBindVertexArray(VAOline);
+			glBindBuffer(GL_ARRAY_BUFFER, VBOline);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
+			glEnableVertexAttribArray(0);
+		glBindVertexArray(0);
 	}
 
 	~Renderer() {
 		delete squareShader;
 		delete triangleShader;
+		delete lineShader;
 	}
 
 	void bufferData(ProgramState &state) {
@@ -191,6 +208,9 @@ public:
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOtriangle);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, state.triangles.size() * sizeof(GLuint), state.triangles.data(), GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBOline);
+		glBufferData(GL_ARRAY_BUFFER, state.vertices.size() * sizeof(glm::vec2), state.vertices.data(), GL_STATIC_DRAW);
 
 		state.isDataDirty = false;
 	}
@@ -208,6 +228,10 @@ public:
 			glBindVertexArray(VAOtriangle);
 				glDrawElements(GL_TRIANGLES, state.triangles.size(), GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
+
+		glUseProgram(lineShader->ID);
+			glBindVertexArray(VAOline);
+			glDrawArrays(GL_LINE_STRIP, 0, state.vertices.size());
 	}
 };
 
@@ -249,7 +273,7 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
     }
 }
 
-int main(int argc, char * argv[]) {
+int main(int argc, char *argv[]) {
 	std::cout << argv[0] << std::endl;
 
 	glfwInit();
@@ -280,7 +304,7 @@ int main(int argc, char * argv[]) {
 	glfwSetKeyCallback(window, keyCallback);
 
 	glfwSwapInterval(1);
-	glClearColor(0.0f, 0.0f, 0.0f, 1);
+	glClearColor(0.15f, 0.15f, 0.15f, 1);
 
 	FPSManager fpsManager(window, 60, 1.0, "Task 3");
 
@@ -295,7 +319,7 @@ int main(int argc, char * argv[]) {
 			glfwPollEvents();
 		}
 	}
-	
+
 	glfwTerminate();
 
     return EXIT_SUCCESS;
