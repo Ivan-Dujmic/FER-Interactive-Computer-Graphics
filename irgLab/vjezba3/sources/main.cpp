@@ -45,6 +45,8 @@ public:
 	
 	bool isDataDirty = false;
 
+	bool stripDrawMode = false;
+
 	ProgramState(int width, int height) :
 		width(width),
 		height(height)
@@ -226,7 +228,11 @@ public:
 
 		glUseProgram(triangleShader->ID);
 			glBindVertexArray(VAOtriangle);
-				glDrawElements(GL_TRIANGLES, state.triangles.size(), GL_UNSIGNED_INT, 0);
+				if (state.stripDrawMode) {
+					glDrawArrays(GL_TRIANGLE_STRIP, 0, state.vertices.size());
+				} else {
+					glDrawElements(GL_TRIANGLES, state.triangles.size(), GL_UNSIGNED_INT, 0);
+				}
 			glBindVertexArray(0);
 
 		glUseProgram(lineShader->ID);
@@ -255,7 +261,16 @@ void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
     if (action == GLFW_PRESS) {
         auto *state = static_cast<ProgramState*>(glfwGetWindowUserPointer(window));
         if (state) {
-            state->addVertex();
+			if (button == GLFW_MOUSE_BUTTON_LEFT) {
+				state->addVertex();
+			} else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+				if (state->stripDrawMode) {
+					std::cout << "Changing triangle draw mode to GL_TRIANGLES" << std::endl;
+				} else {
+					std::cout << "Changing triangle draw mode to GL_TRIANGLE_STRIP" << std::endl;
+				}
+				state->stripDrawMode = !state->stripDrawMode;
+			}
         }
     }
 }
