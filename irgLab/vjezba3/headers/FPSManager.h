@@ -50,7 +50,7 @@ public:
 	FPSManager(GLFWwindow *window, int theTargetFps, double theReportInterval);
 	
 	// Three parameter constructor which sets a desired framerate, how often to report, and the window title to append the FPS to
-	FPSManager(GLFWwindow *window, int theTargetFps, float theReportInterval, std::string theWindowTitle);
+	FPSManager(GLFWwindow *window, int theTargetFps, double theReportInterval, std::string theWindowTitle);
 	
 	// Getter and setter for the verbose property
 	bool getVerbose();
@@ -64,7 +64,7 @@ public:
 	double getFrameDuration(); 
 
 	// Setter for the report interval (how often the FPS is reported) - santises input.
-	void setReportInterval(float theReportInterval);
+	void setReportInterval(double theReportInterval);
 	
 	// Method to force our application to stick to a given frame rate and return how long it took to process a frame
 	double enforceFPS(bool shouldSleep);

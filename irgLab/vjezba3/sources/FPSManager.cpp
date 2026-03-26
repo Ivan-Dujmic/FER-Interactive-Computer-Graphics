@@ -31,7 +31,7 @@ FPSManager::FPSManager(GLFWwindow *window, int theTargetFps, double theReportInt
 	setReportInterval(theReportInterval);
 }
 
-FPSManager::FPSManager(GLFWwindow *window, int theTargetFps, float theReportInterval, std::string theWindowTitle) {
+FPSManager::FPSManager(GLFWwindow *window, int theTargetFps, double theReportInterval, std::string theWindowTitle) {
 	init(window, theTargetFps, true); // If you specify a window title it's safe to say you want the FPS to update there ;)
 
 	setReportInterval(theReportInterval);
@@ -72,7 +72,7 @@ double FPSManager::getFrameDuration() {
 	return frameDuration;
 }
 
-void FPSManager::setReportInterval(float theReportInterval) {
+void FPSManager::setReportInterval(double theReportInterval) {
 	// Ensure the time interval between FPS checks is sane (low cap = 0.1s, high-cap = 10.0s)
 	// Negative numbers are invalid, 10 fps checks per second at most, 1 every 10 secs at least.
 	if (theReportInterval < 0.1) {
