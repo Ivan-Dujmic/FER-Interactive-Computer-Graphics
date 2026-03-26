@@ -121,6 +121,7 @@ private:
 
 	Shader *lineShader;
 	GLuint VAOline, VBOline;
+	GLint lineVarLocUniTime;
 	
 	Shader* loadShader(const char *path, const char *name) {
 		std::string sPath(path);
@@ -178,6 +179,7 @@ public:
 		glBindVertexArray(0);
 
 		lineShader = loadShader(path, "line");
+		lineVarLocUniTime = glGetUniformLocation(lineShader->ID, "uTime");
 
 		glLineWidth(5.0f);
 
@@ -236,6 +238,8 @@ public:
 			glBindVertexArray(0);
 
 		glUseProgram(lineShader->ID);
+			float time = static_cast<float>(glfwGetTime());
+			glUniform1f(lineVarLocUniTime, time);
 			glBindVertexArray(VAOline);
 			glDrawArrays(GL_LINE_STRIP, 0, state.vertices.size());
 	}
