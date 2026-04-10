@@ -31,9 +31,9 @@ int main(int argc, char * argv[]) {
 	std::string path(argv[0]);
 	std::string dirPath(path, 0, path.find_last_of("\\/"));
 	std::string resPath(dirPath);
-	resPath.append("\\resources"); //za linux pretvoriti u forwardslash
+	resPath.append("/resources"); //za linux pretvoriti u forwardslash
 	std::string objPath(resPath);
-	objPath.append("\\glava\\glava.obj"); //za linux pretvoriti u forwardslash
+	objPath.append("/glava/glava.obj"); //za linux pretvoriti u forwardslash
 
 	const aiScene* scene = importer.ReadFile(objPath.c_str(),
 		aiProcess_CalcTangentSpace |
@@ -89,7 +89,7 @@ int main(int argc, char * argv[]) {
 
 			std::cout << "-> " << std::endl;
 			//Do koordinata tih tocaka se dolazi preko prijasnjeg popisa.
-			//OPREZ! razmisliti prije nego se kopiraju dijelovi ovog koda. OpenGL želi indeksirane vrhove, normale i uv koordinate, a tu smo prikazali te podatke slijedno, a ne indeksirano!
+			//OPREZ! razmisliti prije nego se kopiraju dijelovi ovog koda. OpenGL ï¿½eli indeksirane vrhove, normale i uv koordinate, a tu smo prikazali te podatke slijedno, a ne indeksirano!
 
 			for (int j = 0; j < mesh->mFaces[i].mNumIndices; j++) {
 				int vertex = mesh->mFaces[i].mIndices[j]; //OPREZ! grafickoj kartici cete po uputama slati indeksirane buffere, a ne slijedne
@@ -172,7 +172,7 @@ int main(int argc, char * argv[]) {
 			scene->mMaterials[i]->Get(AI_MATKEY_SHININESS, shininessK);
 			std::cout << shininessK << std::endl;
 			
-			// emissive komponenta se ne trazi za implementirati u lab. vježbama
+			// emissive komponenta se ne trazi za implementirati u lab. vjeï¿½bama
 			std::cout << "emissive: ";
 			scene->mMaterials[i]->Get(AI_MATKEY_COLOR_EMISSIVE, emissiveK);
 			std::cout << emissiveK.r << " " << emissiveK.g << " " << emissiveK.b << std::endl;
