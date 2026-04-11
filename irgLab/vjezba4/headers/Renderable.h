@@ -1,14 +1,21 @@
 #pragma once
 
+#include <glad/glad.h>
+
 class Renderable {
 protected:
-    int VAO;
+    GLuint VAO;
 
 public:
-    Renderable() : VAO(0) {}
+    Renderable();
+    Renderable(Renderable &&other) noexcept; 
+    Renderable(const Renderable &other) = delete;
     virtual ~Renderable() = default;
 
-    virtual void draw() = 0;
-    
-    int getVAO();
+    Renderable& operator=(Renderable &&other) noexcept;
+    Renderable& operator=(const Renderable &other) = delete;
+
+    GLuint getVAO() const;
+
+    virtual void draw() const = 0;
 };

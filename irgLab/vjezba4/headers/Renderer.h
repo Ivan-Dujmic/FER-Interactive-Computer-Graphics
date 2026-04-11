@@ -1,23 +1,22 @@
 #pragma once
 
-#include "Camera.h"
-#include "Light.h"
-#include "Object.h"
 #include <vector>
+
+#include "Object.h"
+// #include "Camera.h"
+// #include "Light.h"
 
 class Renderer {
 private:
-    Camera *camera;
-    Light *light;
-    std::vector<Object> objects;
+    std::vector<std::shared_ptr<Object>> objects;
 
 public:
-    Renderer(Camera* camera, Light* light);
+    Renderer() = default;
     ~Renderer() = default;
 
-    void render();
-    void update(float deltaTime);
-    void addObject(Object *obj);
-    Camera* getCamera();
-    Light* getLight();
+    void addObject(std::shared_ptr<Object> o);
+    void removeObject(std::shared_ptr<Object> o);
+
+    void render() const;
+    // void update(float deltaTime);
 };

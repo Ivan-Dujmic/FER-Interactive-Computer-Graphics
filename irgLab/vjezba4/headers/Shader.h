@@ -1,9 +1,8 @@
 #pragma once
 
 #include <glad/glad.h>
-
+#include <glm/glm.hpp>
 #include <string>
-
 #include <fstream>
 #include <sstream>
 
@@ -21,4 +20,6 @@ public:
 	void setUniform(const std::string &name, bool value) const;
 	void setUniform(const std::string &name, int value) const;
 	void setUniform(const std::string &name, float value) const;
+	void setUniform(const std::string &name, const glm::vec3 &vec) const;
+	void setUniform(const std::string &name, const glm::vec4 &mat) const;
 };

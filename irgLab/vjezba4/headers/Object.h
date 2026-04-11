@@ -1,31 +1,33 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include "Material.h"
-#include "Texture.h"
-#include "Shader.h"
-#include "Light.h"
-#include "Renderable.h"
 #include <vector>
+#include <memory>
+
+#include "Transform.h"
+#include "Shader.h"
+#include "Renderable.h"
+// #include "Texture.h"
+// #include "Material.h"
 
 class Object : public Transform {
-protected:
-    Shader *shader;
-    Material *material;
-    Texture *texture;
-    std::vector<Renderable*> renderables;
+private:
+    std::shared_ptr<Shader> shader;
+    std::vector<std::shared_ptr<Renderable>> renderables;
+    // std::shared_ptr<Texture> texture;
+    // std::shared_ptr<Material> material;
 
 public:
-    Object(Shader *shader, Material *material = nullptr, Texture *texture = nullptr);
-    virtual ~Object() = default;
+    Object() = default;
+    Object(std::shared_ptr<Shader> shader, std::vector<std::shared_ptr<Renderable>> renderables);
+    //
+    ~Object() = default;
 
-    virtual void render(glm::mat4 perspectiveMatrix, glm::mat4 viewMatrix, Light *light) = 0;
+    void setShader(std::shared_ptr<Shader> s);
+    void addRenderable(std::shared_ptr<Renderable> r);
+    // void setTexture(std::shared_ptr<Texture> t);
+    // void setMaterial(std::shared_ptr<Material> m);
 
-    void setMaterial(Material *m);
-    void setShader(Shader *s);
-    void setTexture(Texture *t);
+    void render() const;
 
-    Material* getMaterial();
-    Shader* getShader();
-    Texture* getTexture();
 };
