@@ -1,16 +1,13 @@
-// #pragma once
+#pragma once
 
-// #include "Transform.h"
+#include "Transform.h"
 
-// class Camera : public Transform {
-// private:
-//     float zoom;
+class Camera : public Transform {
+private:
+    float left, right, bottom, top, near, far;
 
-// public:
-//     Camera(float zoom = 45.0f);
+public:
+    Camera();
     
-//     glm::mat4 getPerspectiveMatrix(glm::vec2 screenSize);
-    
-//     float getZoom();
-//     void setZoom(float zoom);
-// };
+    glm::mat4 getPerspectiveMatrix(glm::vec2 screenSize) const;
+};
