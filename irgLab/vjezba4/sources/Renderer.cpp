@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include <algorithm>
+#include <iostream>
 
 void Renderer::addObject(std::shared_ptr<Object> o) {
     objects.push_back(std::move(o));

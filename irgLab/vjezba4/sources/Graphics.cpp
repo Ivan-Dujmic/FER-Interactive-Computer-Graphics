@@ -66,6 +66,7 @@ void Graphics::loadGlfw() {
 
 	glfwMakeContextCurrent(window);
     glfwSetWindowUserPointer(window, this);
+    glfwSwapInterval(0);
 }
 
 Graphics::Graphics(WindowState windowState, glm::vec3 clearColor) :
@@ -79,6 +80,8 @@ Graphics::Graphics(WindowState windowState, glm::vec3 clearColor) :
     glfwSetCursorPosCallback(window, cursorPosCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfwSetKeyCallback(window, keyCallback);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 }
 
 Graphics::~Graphics() {
@@ -103,9 +106,14 @@ void Graphics::setClearColor(const glm::vec3 c) {
 }
 
 bool Graphics::shouldClose() {
-    return glfwWindowShouldClose(window) == false;
+    return glfwWindowShouldClose(window);
 }
 
-void Graphics::clearWindow() const {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+void Graphics::frameBegin() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Graphics::frameEnd() {
+    glfwSwapBuffers(window);
+    glfwPollEvents();
 }

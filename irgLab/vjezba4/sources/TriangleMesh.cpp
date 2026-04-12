@@ -1,6 +1,7 @@
 #include "TriangleMesh.h"
 #include <glm/glm.hpp>
 #include <algorithm>
+#include <iostream>
 
 void TriangleMesh::initialize() {
     glGenVertexArrays(1, &VAO);
@@ -135,8 +136,8 @@ void TriangleMesh::normalize() {
     float M = std::max({maxV.x - minV.x, maxV.y - minV.y, maxV.z - minV.z});
     float scale = 2 / M;
 
-    for (auto v : getVertices()) {
-        v = (v - center) * (2 / scale);
+    for (auto &v : vertices) {
+        v = (v - center) * scale;
     }
 }
 

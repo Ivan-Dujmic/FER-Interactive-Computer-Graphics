@@ -21,6 +21,8 @@
 
 #define WIDTH 1000
 #define HEIGHT 1000
+#define SHADER "wireframe"
+#define CLEAR_COLOR glm::vec3(0.7f)
 
 // argv[0] = program path ; argv[1] = object to load
 int main(int argc, char *argv[]) {
@@ -29,18 +31,20 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 	WindowState windowState(WIDTH, HEIGHT);
-	Graphics graphics(windowState);
+	Graphics graphics(windowState, CLEAR_COLOR);
 	Renderer renderer;
 	FPSManager fpsManager(graphics.getWindow(), 60, 1.0, "Window");
 	ResourceManager &resources = ResourceManager::getInstance();
-	std::shared_ptr<Shader> shader = resources.getShader("wireframe");
+	std::shared_ptr<Shader> shader = resources.getShader(SHADER);
 	std::vector<std::shared_ptr<Renderable>> scene = resources.getScene(argv[1]);
 	std::shared_ptr<Object> object = std::make_shared<Object>(shader, scene);
 	object->normalize();
 	renderer.addObject(object);
 
 	while (!graphics.shouldClose()) {
+		graphics.frameBegin();
 		renderer.render();
+		graphics.frameEnd();
 	}
 
     return EXIT_SUCCESS;

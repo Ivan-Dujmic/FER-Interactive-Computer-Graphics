@@ -28,5 +28,6 @@ public:
     void setClearColor(const glm::vec3 c);
 
 	bool shouldClose();
-	void clearWindow() const;
+	void frameBegin();
+	void frameEnd();
 };
