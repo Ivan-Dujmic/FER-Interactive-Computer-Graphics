@@ -1,6 +1,7 @@
 #include "Shader.h"
-#include <iostream>
 #include <glm/gtc/type_ptr.hpp>
+#include <iostream>
+#include <filesystem>
 
 void Shader::checkCompilerErrors(unsigned int shader, std::string type) {
 	int success;
@@ -22,7 +23,7 @@ void Shader::checkCompilerErrors(unsigned int shader, std::string type) {
 	}
 }
 
-Shader::Shader(const char *vertexPath, const char *fragmentPath) {
+Shader::Shader(const std::string &name) {
 	//std::cout << vertexPath << std::endl;
 	std::string vertexCode;
 	std::string fragmentCode;
@@ -33,9 +34,12 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath) {
 	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	try {
+		std::string pathVert = std::filesystem::current_path().string() + SHADERS_PATH + name + "/" + name + ".vert";
+		std::string pathFrag = std::filesystem::current_path().string() + SHADERS_PATH + name + "/" + name + ".frag";
+
 		// Open files
-		vShaderFile.open(vertexPath);
-		fShaderFile.open(fragmentPath);
+		vShaderFile.open(pathVert);
+		fShaderFile.open(pathFrag);
 		std::stringstream vShaderStream, fShaderStream;
 
 		// Read file's buffer contents into streams

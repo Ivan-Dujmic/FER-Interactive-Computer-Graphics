@@ -1,6 +1,6 @@
 # Blender v2.81 (sub 16) OBJ File: 'robot.blend'
 # www.blender.org
-mtllib glava.mtl
+mtllib head.mtl
 o head_
 v -0.294176 -0.303604 0.108356
 v -0.303090 -0.305883 0.108382

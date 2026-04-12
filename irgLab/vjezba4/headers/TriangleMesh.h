@@ -57,6 +57,6 @@ public:
     // void setNormals(const std::vector<glm::vec3>& n);
     // void setUVCoords(const std::vector<glm::vec3>& i);
 
-    void normalize();
+    void normalize() override;
     void draw() const override;
 };

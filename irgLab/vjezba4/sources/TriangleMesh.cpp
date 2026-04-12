@@ -1,5 +1,6 @@
 #include "TriangleMesh.h"
 #include <glm/glm.hpp>
+#include <algorithm>
 
 void TriangleMesh::initialize() {
     glGenVertexArrays(1, &VAO);
@@ -128,7 +129,15 @@ const std::vector<GLuint>& TriangleMesh::getIndices() const {
 }
 
 void TriangleMesh::normalize() {
-    // TODO
+    // TODO: Make this work with Transform or MyGLM maybe?
+    auto [minV, maxV] = getBoundingBox();
+    glm::vec3 center = (minV + maxV) * 0.5f;
+    float M = std::max({maxV.x - minV.x, maxV.y - minV.y, maxV.z - minV.z});
+    float scale = 2 / M;
+
+    for (auto v : getVertices()) {
+        v = (v - center) * (2 / scale);
+    }
 }
 
 void TriangleMesh::draw() const {

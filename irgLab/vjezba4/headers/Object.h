@@ -13,13 +13,13 @@
 class Object : public Transform {
 private:
     std::shared_ptr<Shader> shader;
-    std::vector<std::shared_ptr<Renderable>> renderables;
+    std::vector<std::shared_ptr<Renderable>> scene;
     // std::shared_ptr<Texture> texture;
     // std::shared_ptr<Material> material;
 
 public:
     Object() = default;
-    Object(std::shared_ptr<Shader> shader, std::vector<std::shared_ptr<Renderable>> renderables);
+    Object(std::shared_ptr<Shader> shader, std::vector<std::shared_ptr<Renderable>> scene);
     //
     ~Object() = default;
 
@@ -28,6 +28,7 @@ public:
     // void setTexture(std::shared_ptr<Texture> t);
     // void setMaterial(std::shared_ptr<Material> m);
 
-    void render() const;
+    void normalize();
 
+    void render() const;
 };

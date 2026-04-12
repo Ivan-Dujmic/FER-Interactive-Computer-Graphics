@@ -3,24 +3,29 @@
 #include <string>
 #include <unordered_map>
 #include <memory>
-
+#include <assimp/Importer.hpp>      
+#include <assimp/scene.h>           
+#include <assimp/postprocess.h>
 #include "Renderable.h"
 #include "Shader.h"
 // #include "Texture.h"
+#include "TriangleMesh.h"
 
 #define RESOURCES_PATH "/resources/"
 
 class ResourceManager {
 private:
-    std::unordered_map<std::string, std::shared_ptr<Renderable>> renderables;
+    std::unordered_map<std::string, std::vector<std::shared_ptr<Renderable>>> scenes;
     std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
     // std::unordered_map<std::string, std::shared_ptr<Texture>> textures;
 
     ResourceManager() = default;
 
+    TriangleMesh parseMesh(aiMesh* mesh) const;
+
 public:
     // Singleton
-    static ResourceManager& getInstace() {
+    static ResourceManager& getInstance() {
         static ResourceManager instance;
         return instance;
     }
@@ -28,7 +33,7 @@ public:
 
     ResourceManager& operator=(const ResourceManager&) = delete;
 
-    std::shared_ptr<Renderable> getRenderable(const std::string &name);
+    std::vector<std::shared_ptr<Renderable>> getScene(const std::string &name);
     std::shared_ptr<Shader> getShader(const std::string &name);
     // std::shared_ptr<Texture> getTexture(std::string name);
 };

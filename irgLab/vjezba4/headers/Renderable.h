@@ -17,5 +17,6 @@ public:
 
     GLuint getVAO() const;
 
+    virtual void normalize() = 0;
     virtual void draw() const = 0;
 };

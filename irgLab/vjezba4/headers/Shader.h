@@ -6,6 +6,8 @@
 #include <fstream>
 #include <sstream>
 
+#define SHADERS_PATH "/shaders/"
+
 class Shader {
 private:
 	void checkCompilerErrors(unsigned int shader, std::string type);
@@ -13,7 +15,7 @@ private:
 public:
 	unsigned int ID;
 
-	Shader(const char *vertexPath, const char *fragmentPath);
+	Shader(const std::string &name);
 	~Shader();
 
 	void use();

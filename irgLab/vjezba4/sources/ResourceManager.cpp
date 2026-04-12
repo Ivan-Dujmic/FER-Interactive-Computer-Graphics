@@ -1,15 +1,11 @@
 #include "ResourceManager.h"
-#include <assimp/Importer.hpp>      
-#include <assimp/scene.h>           
-#include <assimp/postprocess.h>
 #include <glm/glm.hpp>
 #include <filesystem>
 #include <iostream>
-#include "TriangleMesh.h"
 
-std::shared_ptr<Renderable> ResourceManager::getRenderable(const std::string &name) {
-    auto it = renderables.find(name);
-    if (it != renderables.end()) {
+std::vector<std::shared_ptr<Renderable>> ResourceManager::getScene(const std::string &name) {
+    auto it = scenes.find(name);
+    if (it != scenes.end()) {
         return it->second;
     }
         
@@ -28,7 +24,7 @@ std::shared_ptr<Renderable> ResourceManager::getRenderable(const std::string &na
 
     if (!scene) {
 		std::cerr << importer.GetErrorString();
-		return std::shared_ptr<Renderable>();
+		exit(EXIT_FAILURE);
 	}
 
     // Will have to do a check once we start supporting more than just the TriangleMesh
@@ -36,10 +32,21 @@ std::shared_ptr<Renderable> ResourceManager::getRenderable(const std::string &na
 
     if (!scene->HasMeshes()) {
         std::cerr << "Scene has no meshes\n";
-        return std::shared_ptr<Renderable>();
+        exit(EXIT_FAILURE);
     }
 
-    aiMesh *mesh = scene->mMeshes[0];
+    std::vector<std::shared_ptr<Renderable>> renderables;
+    renderables.reserve(scene->mNumMeshes);
+
+    for (std::size_t i = 0 ; i < scene->mNumMeshes ; i++) {
+        renderables.emplace_back(std::make_shared<TriangleMesh>(parseMesh(scene->mMeshes[i])));
+    }
+
+    scenes[name] = renderables;
+    return renderables;
+}
+
+TriangleMesh ResourceManager::parseMesh(aiMesh* mesh) const {
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec3> normals;
     std::vector<GLuint> indices;
@@ -50,20 +57,20 @@ std::shared_ptr<Renderable> ResourceManager::getRenderable(const std::string &na
 
     for (unsigned int i = 0 ; i < mesh->mNumVertices ; i++) {
         const aiVector3D& v = mesh->mVertices[i];
-        vertices.emplace_back(v);
+        vertices.emplace_back(v.x, v.y, v.z);
     }
 
     if (mesh->HasNormals()) {
         for (unsigned int i = 0 ; i < mesh->mNumVertices ; i++) {
             const aiVector3D& n = mesh->mNormals[i];
-            normals.emplace_back(n);
+            normals.emplace_back(n.x, n.y, n.z);
         }
     }
 
     if (mesh->HasTextureCoords(0)) {
         for (unsigned int i = 0 ; i < mesh->mNumVertices ; i++) {
             const aiVector3D& t = mesh->mTextureCoords[0][i];
-            uvCoords.emplace_back(t); // Will properly dump the third value
+            uvCoords.emplace_back(t.x, t.y);
         }
     }
 
@@ -83,7 +90,7 @@ std::shared_ptr<Renderable> ResourceManager::getRenderable(const std::string &na
         }
     }
 
-    return std::make_shared<TriangleMesh>(std::move(vertices), std::move(normals), std::move(uvCoords), std::move(indices));
+    return {std::move(vertices), std::move(normals), std::move(uvCoords), std::move(indices)};
 }
 
 std::shared_ptr<Shader> ResourceManager::getShader(const std::string &name) {

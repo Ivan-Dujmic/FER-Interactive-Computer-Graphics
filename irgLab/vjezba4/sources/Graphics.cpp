@@ -10,8 +10,8 @@ void Graphics::framebufferSizeCallback(GLFWwindow *window, int width, int height
     auto* graphics = static_cast<Graphics*>(glfwGetWindowUserPointer(window));
     if (!graphics) return;
 
-    graphics->windowState->setWindowWidth(width);
-    graphics->windowState->setWindowHeight(height);
+    graphics->windowState.setWindowWidth(width);
+    graphics->windowState.setWindowHeight(height);
     glViewport(0, 0, width, height);
 }
 
@@ -19,7 +19,7 @@ void Graphics::cursorPosCallback(GLFWwindow *window, double xpos, double ypos) {
     auto* graphics = static_cast<Graphics*>(glfwGetWindowUserPointer(window));
     if (!graphics) return;
 
-    graphics->windowState->setCursorPosition(glm::vec2(static_cast<float>(xpos), static_cast<float>(ypos)));
+    graphics->windowState.setCursorPosition(glm::vec2(static_cast<float>(xpos), static_cast<float>(ypos)));
 }
 
 void Graphics::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
@@ -58,23 +58,20 @@ void Graphics::loadGlfw() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-	window = glfwCreateWindow(windowState->getWindowWidth(), windowState->getWindowHeight(), "Window", nullptr, nullptr);
+	window = glfwCreateWindow(windowState.getWindowWidth(), windowState.getWindowHeight(), "Window", nullptr, nullptr);
     if (!window) {
         std::cerr << "Failed to create window\n";
+        exit(EXIT_FAILURE);
     }
 
 	glfwMakeContextCurrent(window);
     glfwSetWindowUserPointer(window, this);
 }
 
-Graphics::Graphics(std::unique_ptr<WindowState> windowState, glm::vec3 clearColor) :
+Graphics::Graphics(WindowState windowState, glm::vec3 clearColor) :
     windowState(std::move(windowState)),
     clearColor(clearColor)
 {
-    if (!windowState) {
-        std::cerr << "WindowState is null\n";
-    }
-
     loadGlfw();
     gladLoadGL();
     setClearColor(clearColor);
@@ -96,8 +93,8 @@ glm::vec3 Graphics::getClearColor() const {
     return clearColor;
 }
 
-WindowState& Graphics::getWindowState() const {
-    return *windowState;
+const WindowState& Graphics::getWindowState() const {
+    return windowState;
 }
 
 void Graphics::setClearColor(const glm::vec3 c) {
