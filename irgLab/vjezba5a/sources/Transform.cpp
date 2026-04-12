@@ -1,64 +1,61 @@
 #include "Transform.h"
 #include <glm/gtc/matrix_transform.hpp>
-
-glm::vec3 Transform::getPosition() const {
-    return position;
-}
-
-glm::vec3 Transform::getFront() const {
-    return front;
-}
-
-glm::vec3 Transform::getUp() const {
-    return up;
-}
-
-glm::vec3 Transform::getRight() const {
-    return right;
-}
+#include "MyGLM.h"
 
 glm::mat4 Transform::getModelMatrix() const {
     glm::mat4 model(1.0f);
 
-    model[0] = glm::vec4(right * scaleFactor.x, 0.0f);
-    model[1] = glm::vec4(up * scaleFactor.y, 0.0f);
-    model[2] = glm::vec4(front * scaleFactor.y, 0.0f);
-    model[3] = glm::vec4(position, 1.0f);
+    model[0] = right * scaleFactor.x;
+    model[1] = up * scaleFactor.y, 0.0f;
+    model[2] = front * scaleFactor.y, 0.0f;
+    model[3] = position, 1.0f;
     
     return model;
 }
 
 glm::mat4 Transform::getViewMatrix() const {
-    return glm::lookAt(position, position + front, up);
+    return MyGLM::lookAtMatrix(glm::vec3(position), glm::vec3(position + front), glm::vec3(up));
 }
 
 void Transform::rotateFPS(float offsetX, float offsetY, bool constaintPitch) {
+    // Jaw (left-right) (around global up axis)
+    glm::mat4 rot = MyGLM::rotate3D(glm::vec3(0.0f, 1.0f, 0.0f), -offsetX);
+    front = glm::normalize(rot * front);
+    up = glm::normalize(rot * up);
+    right = glm::normalize(rot * right);
 
+    // Pitch (up-down) (around local right axis)
+    rot = MyGLM::rotate3D(right, offsetY);
+    front = glm::normalize(rot * front);
+    up = glm::normalize(rot * up);
 }
 
-void Transform::rotate(glm::mat4 rot) {
+// void Transform::rotate(glm::mat4 rot);
 
+void Transform::globalMove(glm::vec3 delta) {
+    position += glm::vec4(delta, 0.0f);
 }
 
-void Transform::globalMove(glm::mat4 delta) {
-
+void Transform::localMove(glm::vec3 delta) {
+    glm::vec3 worldDelta = glm::vec3(front) * delta.z + glm::vec3(up) * delta.y + glm::vec3(right) * delta.x;
+    position += glm::vec4(worldDelta, 0.0f);
 }
 
-void Transform::localMove(glm::mat4 delta) {
+void Transform::setOrientation(glm::vec3 center, glm::vec3 viewUp) {
+    glm::vec3 newFront = glm::normalize(glm::vec3(position) - center);
+    glm::vec3 newRight = glm::normalize(glm::cross(viewUp, newFront));
+    glm::vec3 newUp = glm::cross(newFront, newRight);
 
-}
-
-void Transform::setOrientation() {
-
+    front = glm::vec4(newFront, 0.0f);
+    right = glm::vec4(newRight, 0.0f);
+    up = glm::vec4(newUp, 0.0f);
 }
 
 void Transform::setPosition(glm::vec3 p) {
-
+    position = glm::vec4(p, 1.0f);
 }
 
-void Transform::scale(glm::vec3 s) {
-
-}
+// void Transform::scale(glm::vec3 s);
 
 // void Transform::update(float deltaTime);
 
