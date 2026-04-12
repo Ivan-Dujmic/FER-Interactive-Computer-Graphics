@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sstream>
 
-#define SHADERS_PATH "/shaders/"
+#define SHADERS_PATH "/vjezba4/shaders/"
 
 class Shader {
 private:
