@@ -82,6 +82,7 @@ Graphics::Graphics(WindowState windowState, glm::vec3 clearColor) :
     glfwSetKeyCallback(window, keyCallback);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+    glViewport(0, 0, windowState.getWindowWidth(), windowState.getWindowHeight());
 }
 
 Graphics::~Graphics() {

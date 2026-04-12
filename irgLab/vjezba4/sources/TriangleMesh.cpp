@@ -87,13 +87,15 @@ TriangleMesh::TriangleMesh(
 }
 
 TriangleMesh::TriangleMesh(TriangleMesh &&other) noexcept :
+    Renderable(std::move(other)),
     vertices(std::move(other.vertices)),
     normals(std::move(other.normals)),
     uvCoords(std::move(other.uvCoords)),
     indices(std::move(other.indices)),
-    VBO(std::move(other.VBO)),
+    VBO(other.VBO),
     EBO(other.EBO)
 {
+    other.VBO = {0, 0, 0};
     other.EBO = 0;
 }
 
@@ -104,13 +106,20 @@ TriangleMesh::~TriangleMesh() {
 }
 
 TriangleMesh& TriangleMesh::operator=(TriangleMesh &&other) noexcept {
-    vertices = std::move(other.vertices);
-    normals = std::move(other.normals);
-    uvCoords = std::move(other.uvCoords);
-    indices = std::move(other.indices);
-    VBO = std::move(other.VBO);
-    EBO = other.EBO;
-    other.EBO = 0;
+    if (this != &other) {
+        Renderable::operator=(std::move(other));
+        glDeleteBuffers(3, VBO.data());
+        glDeleteBuffers(1, &EBO);
+        vertices = std::move(other.vertices);
+        normals = std::move(other.normals);
+        uvCoords = std::move(other.uvCoords);
+        indices = std::move(other.indices);
+        VBO = other.VBO;
+        other.VBO = {0, 0, 0};
+        EBO = other.EBO;
+        other.EBO = 0;
+    }
+    return *this;
 }
 
 const std::vector<glm::vec3>& TriangleMesh::getVertices() const {
@@ -139,6 +148,9 @@ void TriangleMesh::normalize() {
     for (auto &v : vertices) {
         v = (v - center) * scale;
     }
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_STATIC_DRAW);
 }
 
 void TriangleMesh::draw() const {
