@@ -337,7 +337,7 @@ int main(int argc, char * argv[]) {
 		//primjer 4a
 		//za svaku instancu objekta saljemo naredbu za iscrtavanje. podaci o modelu ostaju na grafickoj, mijenja se samo uniform varijabla.
 		glUseProgram(sjencar[2]->ID);
-		glViewport(0, 0, width / 3, height / 2);
+		glViewport(0, 0, width / 2, height / 2);
 
 		glBindVertexArray(VAO[2]);
 				
@@ -354,7 +354,7 @@ int main(int argc, char * argv[]) {
 		//primjer 4b
 		//samo jednom pozivamo iscrtavanje za sve instance jer smo grafickoj poslali polje transformacija
 		glUseProgram(sjencar[3]->ID);
-		glViewport(width / 3,0, width / 3, height / 2);
+		glViewport(width / 2,0, width / 2, height / 2);
 
 		glBindVertexArray(VAO[3]);
 		glDrawElementsInstanced(GL_TRIANGLES, sizeof(indeksi)/sizeof(unsigned int), GL_UNSIGNED_INT, 0, 16); //poziv crtanja s indeksima i instancama
