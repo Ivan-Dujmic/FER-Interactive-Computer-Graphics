@@ -16,3 +16,6 @@ First two lab exercises were done without utilizing OpenGL drawing functionaliti
 - Color picker
 - Drawing line paths
 - Changing line color based on position and time
+
+## Lab4
+- Load and draw scene wireframe
