@@ -30,5 +30,5 @@ public:
 
     void normalize();
 
-    void render() const;
+    void render(glm::mat4 viewMatrix, glm::mat4 perspectiveMatrix) const;
 };

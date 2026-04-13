@@ -149,6 +149,17 @@ if(MSVC AND TARGET assimp)
     target_compile_options(assimp PRIVATE /WX-)
 endif()
 
+set(RES_SRC "${CMAKE_CURRENT_SOURCE_DIR}/irgLab/resources")
+set(RES_DST "${CMAKE_BINARY_DIR}/resources")
+
+add_custom_target(update_resources ALL
+    # 1. Remove the old directory in build
+    COMMAND ${CMAKE_COMMAND} -E rm -rf ${RES_DST}
+    # 2. Create it fresh and copy everything
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${RES_SRC} ${RES_DST}
+    COMMENT "Mirroring shared resources (cleaning old files)..."
+)
+
 add_subdirectory(irgLab/primjerGLM)
 add_subdirectory(irgLab/primjerASSIMP)
 add_subdirectory(irgLab/primjerOpenGL)

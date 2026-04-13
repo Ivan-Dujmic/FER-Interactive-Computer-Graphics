@@ -2,6 +2,10 @@
 #include <algorithm>
 #include <iostream>
 
+Renderer::Renderer(std::shared_ptr<Camera> c) {
+    camera = std::move(c);
+}
+
 void Renderer::addObject(std::shared_ptr<Object> o) {
     objects.push_back(std::move(o));
 }
@@ -14,9 +18,13 @@ void Renderer::removeObject(std::shared_ptr<Object> o) {
     }
 }
 
+void Renderer::setCamera(std::shared_ptr<Camera> c) {
+    camera = std::move(c);
+}
+
 void Renderer::render() const {
     for (const std::shared_ptr<Object> &o : objects) {
-        o->render();
+        o->render(camera->getViewMatrix(), camera->getPerspectiveMatrix());
     }
 }
 

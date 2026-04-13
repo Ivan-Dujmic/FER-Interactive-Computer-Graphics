@@ -11,7 +11,7 @@
 // #include "Texture.h"
 #include "TriangleMesh.h"
 
-#define RESOURCES_PATH "/vjezba4/resources/"
+#define RESOURCES_PATH "/resources/"
 
 class ResourceManager {
 private:

@@ -9,5 +9,5 @@ private:
 public:
     Camera();
     
-    glm::mat4 getPerspectiveMatrix(glm::vec2 screenSize) const;
+    glm::mat4 getPerspectiveMatrix() const;
 };

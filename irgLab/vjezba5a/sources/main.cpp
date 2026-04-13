@@ -22,17 +22,18 @@
 #define WIDTH 1000
 #define HEIGHT 1000
 #define SHADER "wireframe"
-#define CLEAR_COLOR glm::vec3(0.7f)
+#define CLEAR_COLOR glm::vec3(0.0f)
 
 // argv[0] = program path ; argv[1] = object to load
 int main(int argc, char *argv[]) {
 	if (argc < 2) {
-		std::cerr << "Usage: ./vjezba4 <.obj name>\n";
+		std::cerr << "Usage: ./vjezba5 <.obj name>\n";
 		return EXIT_FAILURE;
 	}
 	WindowState windowState(WIDTH, HEIGHT);
 	Graphics graphics(windowState, CLEAR_COLOR);
-	Renderer renderer;
+	std::shared_ptr<Camera> camera;
+	Renderer renderer(camera);
 	FPSManager fpsManager(graphics.getWindow(), 60, 1.0, "Window");
 	ResourceManager &resources = ResourceManager::getInstance();
 	std::shared_ptr<Shader> shader = resources.getShader(SHADER);

@@ -10,6 +10,6 @@ Camera::Camera() :
     far(100.0f)
 {}
     
-glm::mat4 Camera::getPerspectiveMatrix(glm::vec2 screenSize) const {
+glm::mat4 Camera::getPerspectiveMatrix() const {
     return MyGLM::frustum(left, right, bottom, top, near, far);
 }

@@ -20,7 +20,7 @@ void Object::normalize() {
     }
 }
 
-void Object::render() const {
+void Object::render(glm::mat4 viewMatrix, glm::mat4 perspectiveMatrix) const {
     if (!shader) {
         std::cerr << "Object missing shader\n";
         exit(EXIT_FAILURE);
@@ -32,6 +32,9 @@ void Object::render() const {
 
     shader->use();
     shader->setUniform("uColor", glm::vec3(1.0f, 0.0f, 1.0f));
+    shader->setUniform("uModel", getModelMatrix());
+    shader->setUniform("uView", viewMatrix);
+    shader->setUniform("uProjection", perspectiveMatrix);
 
     for (const std::shared_ptr<Renderable> &r : scene) {
         r->draw();
