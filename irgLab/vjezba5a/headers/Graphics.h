@@ -11,9 +11,9 @@ private:
 	static GLFWwindow *window;
     WindowState windowState;
 	glm::vec3 clearColor;
+	bool keys[1024];
 
 	std::function<void(glm::vec2, glm::vec2)> myCursorPosCallback; // prevCursorPosition, cursorPosition
-	std::function<void(int)> myKeyCallback; // action
 
     static void framebufferSizeCallback(GLFWwindow *window, int width, int height);
 	static void cursorPosCallback(GLFWwindow *window, double xpos, double ypos);
@@ -29,8 +29,8 @@ public:
     glm::vec3 getClearColor() const;
     const WindowState& getWindowState() const;
     void setClearColor(const glm::vec3 c);
+	const bool* getKeys() const;
 	void setMyCursorPosCallback(const std::function<void(glm::vec2, glm::vec2)>& func);
-	void setMyKeyCallback(const std::function<void(int)>& func);
 
 	bool shouldClose();
 	void frameBegin();

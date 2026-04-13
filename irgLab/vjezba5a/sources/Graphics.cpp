@@ -18,7 +18,7 @@ void Graphics::framebufferSizeCallback(GLFWwindow *window, int width, int height
 void Graphics::cursorPosCallback(GLFWwindow *window, double xpos, double ypos) {
     auto* graphics = static_cast<Graphics*>(glfwGetWindowUserPointer(window));
     if (!graphics) return;
-    if (!graphics->cursorPosCallback) return;
+    if (!graphics->myCursorPosCallback) return;
 
     graphics->windowState.setCursorPosition(glm::vec2(static_cast<float>(xpos), static_cast<float>(ypos)));
     graphics->myCursorPosCallback(graphics->windowState.getPrevCursorPosition(), graphics->windowState.getCursorPosition());
@@ -39,18 +39,20 @@ void Graphics::mouseButtonCallback(GLFWwindow *window, int button, int action, i
 }
 
 void Graphics::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
-    if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
-
+    auto *graphics = static_cast<Graphics*>(glfwGetWindowUserPointer(window));
+    if (!graphics) return;
     if (key == GLFW_KEY_ESCAPE) {
         glfwSetWindowShouldClose(window, true);
         return;
     }
 
-    auto *graphics = static_cast<Graphics*>(glfwGetWindowUserPointer(window));
-    if (!graphics) return;
-    if (!graphics->myKeyCallback) return;
-
-    graphics->myKeyCallback(key);
+    if (key >= 0 && key < 1024) {
+        if (action == GLFW_PRESS) {
+            graphics->keys[key] = true;
+        } else if (action == GLFW_RELEASE) {
+            graphics->keys[key] = false;
+        }
+    }
 }
 
 void Graphics::loadGlfw() {
@@ -80,6 +82,7 @@ void Graphics::loadGlfw() {
 }
 
 Graphics::Graphics(WindowState windowState, glm::vec3 clearColor) :
+    keys{}, // Fill with false
     windowState(std::move(windowState)),
     clearColor(clearColor)
 {
@@ -112,12 +115,12 @@ void Graphics::setClearColor(const glm::vec3 c) {
     glClearColor(c.r, c.g, c.b, 1.0f);
 }
 
-void Graphics::setMyCursorPosCallback(const std::function<void(glm::vec2, glm::vec2)>& func) {
-    myCursorPosCallback = func;
+const bool* Graphics::getKeys() const {
+    return keys;
 }
 
-void Graphics::setMyKeyCallback(const std::function<void(int)>& func) {
-    myKeyCallback = func;
+void Graphics::setMyCursorPosCallback(const std::function<void(glm::vec2, glm::vec2)>& func) {
+    myCursorPosCallback = func;
 }
 
 bool Graphics::shouldClose() {

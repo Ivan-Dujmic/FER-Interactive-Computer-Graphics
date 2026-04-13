@@ -23,7 +23,7 @@
 #define HEIGHT 1000
 #define SHADER "wireframe"
 #define CLEAR_COLOR glm::vec3(0.0f)
-#define SPEED 0.1f
+#define SPEED 7.5f
 #define SENSETIVITY 0.1
 
 // argv[0] = program path ; argv[1] = object to load
@@ -48,35 +48,6 @@ int main(int argc, char *argv[]) {
 
 	camera->setPosition(glm::vec3(3.0f, 4.0f, 1.0f));
 	camera->setOrientation(object1->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
-	
-	std::function<void(int)> myKeyCallback =
-	[camera](int action) {
-		switch (action) {
-			case GLFW_KEY_W:
-				camera->localMove(glm::vec3(0.0f, 0.0f, SPEED));
-				break;
-
-			case GLFW_KEY_A:
-				camera->localMove(glm::vec3(SPEED, 0.0f, 0.0f));
-				break;
-
-			case GLFW_KEY_S:
-				camera->localMove(glm::vec3(0.0f, 0.0f, -SPEED));
-				break;
-
-			case GLFW_KEY_D:
-				camera->localMove(glm::vec3(-SPEED, 0.0f, 0.0f));
-				break;
-
-			case GLFW_KEY_Q:
-				camera->localMove(glm::vec3(0.0f, -SPEED, 0.0f));
-				break;
-
-			case GLFW_KEY_E:
-				camera->localMove(glm::vec3(0.0f, SPEED, 0.0f));
-				break;
-		}	
-	}; graphics.setMyKeyCallback(myKeyCallback);
 
 	std::function<void(glm::vec2, glm::vec2)> myCursorPosCallback =
 	[camera](glm::vec2 prev, glm::vec2 curr) {
@@ -85,7 +56,26 @@ int main(int argc, char *argv[]) {
 		camera->rotateFPS(SENSETIVITY * deltaX, SENSETIVITY * deltaY);
 	}; graphics.setMyCursorPosCallback(myCursorPosCallback);
 
+	std::function<void(float)> move =
+	[&graphics, camera](float deltaTime) {
+		glm::vec3 move(0.0f);
+
+		if (graphics.getKeys()[GLFW_KEY_W]) move.z += 1.0f;
+		if (graphics.getKeys()[GLFW_KEY_S]) move.z -= 1.0f;
+		if (graphics.getKeys()[GLFW_KEY_A]) move.x += 1.0f;
+		if (graphics.getKeys()[GLFW_KEY_D]) move.x -= 1.0f;
+		if (graphics.getKeys()[GLFW_KEY_Q]) move.y -= 1.0f;
+		if (graphics.getKeys()[GLFW_KEY_E]) move.y += 1.0f;
+
+		move = glm::normalize(move) * SPEED * deltaTime;
+		if (glm::length(move) > 0.0001f) {
+			camera->localMove(move);
+		}
+	};
+
 	while (!graphics.shouldClose()) {
+		auto deltaTime = (float)fpsManager.enforceFPS(false);
+		move(deltaTime);
 		graphics.frameBegin();
 		renderer.render();
 		graphics.frameEnd();
