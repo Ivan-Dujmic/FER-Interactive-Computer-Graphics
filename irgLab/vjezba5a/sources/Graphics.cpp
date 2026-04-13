@@ -47,7 +47,9 @@ void Graphics::keyCallback(GLFWwindow *window, int key, int scancode, int action
     auto *graphics = static_cast<Graphics*>(glfwGetWindowUserPointer(window));
     if (!graphics) return;
         
-    // TODO
+    if (!graphics->myKeyCallback) return;
+
+    graphics->myKeyCallback(key);
 }
 
 void Graphics::loadGlfw() {
@@ -67,6 +69,13 @@ void Graphics::loadGlfw() {
 	glfwMakeContextCurrent(window);
     glfwSetWindowUserPointer(window, this);
     glfwSwapInterval(0);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSetCursorPosCallback(window, cursorPosCallback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfwSetKeyCallback(window, keyCallback);
 }
 
 Graphics::Graphics(WindowState windowState, glm::vec3 clearColor) :
@@ -76,10 +85,6 @@ Graphics::Graphics(WindowState windowState, glm::vec3 clearColor) :
     loadGlfw();
     gladLoadGL();
     setClearColor(clearColor);
-    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
-    glfwSetCursorPosCallback(window, cursorPosCallback);
-    glfwSetMouseButtonCallback(window, mouseButtonCallback);
-    glfwSetKeyCallback(window, keyCallback);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glViewport(0, 0, windowState.getWindowWidth(), windowState.getWindowHeight());
@@ -104,6 +109,10 @@ const WindowState& Graphics::getWindowState() const {
 void Graphics::setClearColor(const glm::vec3 c) {
     clearColor = c;
     glClearColor(c.r, c.g, c.b, 1.0f);
+}
+
+void Graphics::setMyKeyCallback(const std::function<void(int)>& func) {
+    myKeyCallback = func;
 }
 
 bool Graphics::shouldClose() {

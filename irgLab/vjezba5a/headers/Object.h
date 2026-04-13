@@ -3,7 +3,6 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <memory>
-
 #include "Transform.h"
 #include "Shader.h"
 #include "Renderable.h"

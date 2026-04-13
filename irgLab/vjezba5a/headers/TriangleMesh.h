@@ -5,7 +5,6 @@
 #include <vector>
 #include <array>
 #include <utility>
-
 #include "Renderable.h"
 #include "Shader.h"
 // #include "Material.h"

@@ -3,14 +3,16 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-
 #include "WindowState.h"
+#include <functional>
 
 class Graphics {
 private:
 	static GLFWwindow *window;
     WindowState windowState;
 	glm::vec3 clearColor;
+
+	std::function<void(int)> myKeyCallback;
 
     static void framebufferSizeCallback(GLFWwindow *window, int width, int height);
 	static void cursorPosCallback(GLFWwindow *window, double xpos, double ypos);
@@ -26,6 +28,7 @@ public:
     glm::vec3 getClearColor() const;
     const WindowState& getWindowState() const;
     void setClearColor(const glm::vec3 c);
+	void setMyKeyCallback(const std::function<void(int)>& func);
 
 	bool shouldClose();
 	void frameBegin();

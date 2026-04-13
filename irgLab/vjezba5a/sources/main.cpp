@@ -46,6 +46,37 @@ int main(int argc, char *argv[]) {
 
 	camera->setPosition(glm::vec3(3.0f, 4.0f, 1.0f));
 	camera->setOrientation(object1->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
+	
+	std::function<void(int)> myKeyCallback =
+	[camera](int action) {
+		switch (action) {
+			case GLFW_KEY_W:
+				camera->localMove(glm::vec3(0.0f, 0.0f, 0.05f));
+				break;
+
+			case GLFW_KEY_A:
+				camera->localMove(glm::vec3(0.05f, 0.0f, 0.0f));
+				break;
+
+			case GLFW_KEY_S:
+				camera->localMove(glm::vec3(0.0f, 0.0f, -0.05f));
+				break;
+
+			case GLFW_KEY_D:
+				camera->localMove(glm::vec3(-0.05f, 0.0f, 0.0f));
+				break;
+
+			case GLFW_KEY_Q:
+				camera->localMove(glm::vec3(0.0f, -0.05f, 0.0f));
+				break;
+
+			case GLFW_KEY_E:
+				camera->localMove(glm::vec3(0.0f, 0.05f, 0.0f));
+				break;
+		}	
+	};
+
+	graphics.setMyKeyCallback(myKeyCallback);
 
 	while (!graphics.shouldClose()) {
 		graphics.frameBegin();
