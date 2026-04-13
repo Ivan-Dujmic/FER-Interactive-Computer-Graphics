@@ -46,6 +46,18 @@ int main(int argc, char *argv[]) {
 	object1->globalMove(glm::vec3(-1.5f, 0.0f, 0.0f));
 	renderer.addObject(object1);
 
+	std::shared_ptr<Object> object2 = std::make_shared<Object>(shader, scene1);
+	object2->normalize();
+	object2->globalMove(glm::vec3(1.5f, 0.0f, 0.0f));
+	object2->setScale(glm::vec3(0.7f, 2.0f, 1.3f));
+	renderer.addObject(object2);
+
+	std::vector<std::shared_ptr<Renderable>> scene2 = resources.getScene(argv[2]);
+	std::shared_ptr<Object> object3 = std::make_shared<Object>(shader, scene2);
+	object3->normalize();
+	object3->globalMove(glm::vec3(-1.5f, 0.0f, -2.5f));
+	renderer.addObject(object3);
+
 	camera->setPosition(glm::vec3(3.0f, 4.0f, 1.0f));
 	camera->setOrientation(object1->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
 
