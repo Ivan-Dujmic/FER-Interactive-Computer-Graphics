@@ -3,6 +3,9 @@
 #include <iostream>
 
 Renderer::Renderer(std::shared_ptr<Camera> c) {
+    if (!c) {
+        std::cerr << "Provided camera may not be null\n";
+    }
     camera = std::move(c);
 }
 
@@ -19,6 +22,9 @@ void Renderer::removeObject(std::shared_ptr<Object> o) {
 }
 
 void Renderer::setCamera(std::shared_ptr<Camera> c) {
+    if (!c) {
+        std::cerr << "Provided camera may not be null\n";
+    }
     camera = std::move(c);
 }
 

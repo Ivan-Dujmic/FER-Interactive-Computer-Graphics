@@ -32,9 +32,10 @@ int main(int argc, char *argv[]) {
 	}
 	WindowState windowState(WIDTH, HEIGHT);
 	Graphics graphics(windowState, CLEAR_COLOR);
-	std::shared_ptr<Camera> camera;
-	Renderer renderer(camera);
 	FPSManager fpsManager(graphics.getWindow(), 60, 1.0, "Window");
+	std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+	camera->setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
+	Renderer renderer(camera);
 	ResourceManager &resources = ResourceManager::getInstance();
 	std::shared_ptr<Shader> shader = resources.getShader(SHADER);
 	std::vector<std::shared_ptr<Renderable>> scene = resources.getScene(argv[1]);

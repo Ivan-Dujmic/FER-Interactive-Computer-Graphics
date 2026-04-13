@@ -2,13 +2,21 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "MyGLM.h"
 
+Transform::Transform(glm::vec3 position) :
+    position(glm::vec4(position, 1.0f)),
+    front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)),
+    up(glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)),
+    right(glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)),
+    scaleFactor(glm::vec4(1.0f, 1.0f, 1.0f, 0.0f))
+{}
+
 glm::mat4 Transform::getModelMatrix() const {
     glm::mat4 model(1.0f);
 
     model[0] = right * scaleFactor.x;
-    model[1] = up * scaleFactor.y, 0.0f;
-    model[2] = front * scaleFactor.y, 0.0f;
-    model[3] = position, 1.0f;
+    model[1] = up * scaleFactor.y;
+    model[2] = front * scaleFactor.y;
+    model[3] = position;
     
     return model;
 }
@@ -17,12 +25,22 @@ glm::mat4 Transform::getViewMatrix() const {
     return MyGLM::lookAtMatrix(glm::vec3(position), glm::vec3(position + front), glm::vec3(up));
 }
 
-void Transform::rotateFPS(float offsetX, float offsetY, bool constaintPitch) {
+void Transform::rotateFPS(float offsetX, float offsetY, bool constrainPitch) {
     // Jaw (left-right) (around global up axis)
     glm::mat4 rot = MyGLM::rotate3D(glm::vec3(0.0f, 1.0f, 0.0f), -offsetX);
     front = glm::normalize(rot * front);
     up = glm::normalize(rot * up);
     right = glm::normalize(rot * right);
+
+    if (constrainPitch) {
+        float pitch = glm::degrees(glm::asin(front.y));
+
+        if (pitch + offsetY > MAX_PITCH) {
+            offsetY = MAX_PITCH - pitch;
+        } else if (pitch + offsetY < -MAX_PITCH) {
+            offsetY = -MAX_PITCH - pitch;
+        }
+    }
 
     // Pitch (up-down) (around local right axis)
     rot = MyGLM::rotate3D(right, offsetY);
