@@ -23,7 +23,7 @@ public:
 
     glm::mat4 getModelMatrix() const;
     glm::mat4 getViewMatrix() const;
-    void rotateFPS(float offsetX, float offsetY, bool constrainPitch = true);
+    void rotateFPS(float offsetX, float offsetY);
     // void rotate(glm::mat4 rot);
     void globalMove(glm::vec3 delta);
     void localMove(glm::vec3 delta);

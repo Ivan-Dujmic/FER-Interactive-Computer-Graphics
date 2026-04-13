@@ -37,22 +37,12 @@ glm::mat4 Transform::getViewMatrix() const {
     return MyGLM::lookAtMatrix(glm::vec3(position), glm::vec3(position + front), glm::vec3(up));
 }
 
-void Transform::rotateFPS(float offsetX, float offsetY, bool constrainPitch) {
+void Transform::rotateFPS(float offsetX, float offsetY) {
     // Jaw (left-right) (around global up axis)
     glm::mat4 rot = MyGLM::rotate3D(glm::vec3(0.0f, 1.0f, 0.0f), -offsetX);
     front = glm::normalize(rot * front);
     up = glm::normalize(rot * up);
     right = glm::normalize(rot * right);
-
-    if (constrainPitch) {
-        float pitch = glm::degrees(glm::asin(front.y));
-
-        if (pitch + offsetY > MAX_PITCH) {
-            offsetY = MAX_PITCH - pitch;
-        } else if (pitch + offsetY < -MAX_PITCH) {
-            offsetY = -MAX_PITCH - pitch;
-        }
-    }
 
     // Pitch (up-down) (around local right axis)
     rot = MyGLM::rotate3D(right, offsetY);

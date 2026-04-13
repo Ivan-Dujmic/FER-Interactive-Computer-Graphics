@@ -23,6 +23,8 @@
 #define HEIGHT 1000
 #define SHADER "wireframe"
 #define CLEAR_COLOR glm::vec3(0.0f)
+#define SPEED 0.1f
+#define SENSETIVITY 0.1
 
 // argv[0] = program path ; argv[1] = object to load
 int main(int argc, char *argv[]) {
@@ -51,32 +53,37 @@ int main(int argc, char *argv[]) {
 	[camera](int action) {
 		switch (action) {
 			case GLFW_KEY_W:
-				camera->localMove(glm::vec3(0.0f, 0.0f, 0.05f));
+				camera->localMove(glm::vec3(0.0f, 0.0f, SPEED));
 				break;
 
 			case GLFW_KEY_A:
-				camera->localMove(glm::vec3(0.05f, 0.0f, 0.0f));
+				camera->localMove(glm::vec3(SPEED, 0.0f, 0.0f));
 				break;
 
 			case GLFW_KEY_S:
-				camera->localMove(glm::vec3(0.0f, 0.0f, -0.05f));
+				camera->localMove(glm::vec3(0.0f, 0.0f, -SPEED));
 				break;
 
 			case GLFW_KEY_D:
-				camera->localMove(glm::vec3(-0.05f, 0.0f, 0.0f));
+				camera->localMove(glm::vec3(-SPEED, 0.0f, 0.0f));
 				break;
 
 			case GLFW_KEY_Q:
-				camera->localMove(glm::vec3(0.0f, -0.05f, 0.0f));
+				camera->localMove(glm::vec3(0.0f, -SPEED, 0.0f));
 				break;
 
 			case GLFW_KEY_E:
-				camera->localMove(glm::vec3(0.0f, 0.05f, 0.0f));
+				camera->localMove(glm::vec3(0.0f, SPEED, 0.0f));
 				break;
 		}	
-	};
+	}; graphics.setMyKeyCallback(myKeyCallback);
 
-	graphics.setMyKeyCallback(myKeyCallback);
+	std::function<void(glm::vec2, glm::vec2)> myCursorPosCallback =
+	[camera](glm::vec2 prev, glm::vec2 curr) {
+		float deltaX = curr.x - prev.x;
+		float deltaY = curr.y - prev.y;
+		camera->rotateFPS(SENSETIVITY * deltaX, SENSETIVITY * deltaY);
+	}; graphics.setMyCursorPosCallback(myCursorPosCallback);
 
 	while (!graphics.shouldClose()) {
 		graphics.frameBegin();
