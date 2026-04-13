@@ -18,6 +18,7 @@
 #include "Shader.h"
 #include "Renderable.h"
 #include "ResourceManager.h"
+#include "Transform.h"
 
 #define WIDTH 1000
 #define HEIGHT 1000
@@ -46,6 +47,18 @@ int main(int argc, char *argv[]) {
 	object1->globalMove(glm::vec3(-1.5f, 0.0f, 0.0f));
 	renderer.addObject(object1);
 
+	std::shared_ptr<Object> object2 = std::make_shared<Object>(shader, scene1);
+	object2->normalize();
+	object2->globalMove(glm::vec3(1.5f, 0.0f, 0.0f));
+	object2->setScale(glm::vec3(0.7f, 2.0f, 1.3f));
+	renderer.addObject(object2);
+
+	std::vector<std::shared_ptr<Renderable>> scene2 = resources.getScene(argv[2]);
+	std::shared_ptr<Object> object3 = std::make_shared<Object>(shader, scene2);
+	object3->normalize();
+	object3->globalMove(glm::vec3(-1.5f, 0.0f, -2.5f));
+	renderer.addObject(object3);
+
 	camera->setPosition(glm::vec3(3.0f, 4.0f, 1.0f));
 	camera->setOrientation(object1->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -56,8 +69,10 @@ int main(int argc, char *argv[]) {
 		camera->rotateFPS(SENSETIVITY * deltaX, SENSETIVITY * deltaY);
 	}; graphics.setMyCursorPosCallback(myCursorPosCallback);
 
+	std::shared_ptr<Transform> character = camera;
+
 	std::function<void(float)> move =
-	[&graphics, camera](float deltaTime) {
+	[&graphics, &character, camera, object1, object2, object3](float deltaTime) {
 		glm::vec3 move(0.0f);
 
 		if (graphics.getKeys()[GLFW_KEY_W]) move.z += 1.0f;
@@ -67,9 +82,14 @@ int main(int argc, char *argv[]) {
 		if (graphics.getKeys()[GLFW_KEY_Q]) move.y -= 1.0f;
 		if (graphics.getKeys()[GLFW_KEY_E]) move.y += 1.0f;
 
+		if (graphics.getKeys()[GLFW_KEY_0]) character = camera;
+		else if (graphics.getKeys()[GLFW_KEY_1]) character = object1;
+		else if (graphics.getKeys()[GLFW_KEY_2]) character = object2;
+		else if (graphics.getKeys()[GLFW_KEY_3]) character = object3;
+
 		move = glm::normalize(move) * SPEED * deltaTime;
 		if (glm::length(move) > 0.0001f) {
-			camera->localMove(move);
+			character->localMove(move);
 		}
 	};
 
