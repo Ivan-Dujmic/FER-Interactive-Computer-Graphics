@@ -10,6 +10,18 @@ Transform::Transform(glm::vec3 position) :
     scaleFactor(glm::vec4(1.0f, 1.0f, 1.0f, 0.0f))
 {}
 
+glm::vec3 Transform::getPosition() const {
+    return glm::vec3(position);
+}
+
+void Transform::setPosition(glm::vec3 p) {
+    position = glm::vec4(p, 1.0f);
+}
+
+void Transform::setScale(glm::vec3 s) {
+    scaleFactor = glm::vec4(s, 0.0f);
+}
+
 glm::mat4 Transform::getModelMatrix() const {
     glm::mat4 model(1.0f);
 
@@ -60,7 +72,7 @@ void Transform::localMove(glm::vec3 delta) {
 }
 
 void Transform::setOrientation(glm::vec3 center, glm::vec3 viewUp) {
-    glm::vec3 newFront = glm::normalize(glm::vec3(position) - center);
+    glm::vec3 newFront = glm::normalize(center - glm::vec3(position));
     glm::vec3 newRight = glm::normalize(glm::cross(viewUp, newFront));
     glm::vec3 newUp = glm::cross(newFront, newRight);
 
@@ -68,12 +80,6 @@ void Transform::setOrientation(glm::vec3 center, glm::vec3 viewUp) {
     right = glm::vec4(newRight, 0.0f);
     up = glm::vec4(newUp, 0.0f);
 }
-
-void Transform::setPosition(glm::vec3 p) {
-    position = glm::vec4(p, 1.0f);
-}
-
-// void Transform::scale(glm::vec3 s);
 
 // void Transform::update(float deltaTime);
 

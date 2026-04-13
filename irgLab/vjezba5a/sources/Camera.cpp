@@ -2,11 +2,11 @@
 #include "MyGLM.h"
 
 Camera::Camera() :
-    left(-1.0f),
-    right(1.0f),
-    bottom(-1.0f),
-    top(1.0f),
-    near(0.1f),
+    left(-0.5f),
+    right(0.5f),
+    bottom(-0.5f),
+    top(0.5f),
+    near(1.0f),
     far(100.0f)
 {}
     

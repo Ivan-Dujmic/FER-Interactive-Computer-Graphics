@@ -17,9 +17,9 @@ public:
     Transform(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
     ~Transform() = default;
 
-    void setFront(glm::vec3 f);
-    void setUp(glm::vec3 u);
-    void setRight(glm::vec3 r);
+    glm::vec3 getPosition() const;
+    void setPosition(glm::vec3 p);
+    void setScale(glm::vec3 s);
 
     glm::mat4 getModelMatrix() const;
     glm::mat4 getViewMatrix() const;
@@ -28,8 +28,6 @@ public:
     void globalMove(glm::vec3 delta);
     void localMove(glm::vec3 delta);
     void setOrientation(glm::vec3 center, glm::vec3 viewUp);
-    void setPosition(glm::vec3 p);
-    // void scale(glm::vec3 s);
     // void update(float deltaTime);
     // void registerAnimation(Lines curve);
 };
