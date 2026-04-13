@@ -20,3 +20,7 @@ glm::mat4 MyGLM::lookAtMatrix(glm::vec3 eye, glm::vec3 center, glm::vec3 viewUp)
 glm::mat4 MyGLM::frustum(float l, float r, float b, float t, float n, float f) {
     return glm::frustum(l, r, b, t, n, f);
 }
+
+glm::mat4 MyGLM::ortho(float l, float r, float b, float t, float n, float f) {
+    return glm::ortho(l, r, b, t, n, f);
+}

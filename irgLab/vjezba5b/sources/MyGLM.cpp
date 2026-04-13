@@ -80,3 +80,17 @@ glm::mat4 MyGLM::frustum(float l, float r, float b, float t, float n, float f) {
 
     return mat;
 }
+
+glm::mat4 MyGLM::ortho(float l, float r, float b, float t, float n, float f) {
+    glm::mat4 mat(0.0f);
+
+    mat[0][0] = 2.0f / (r - l);
+    mat[1][1] = 2.0f / (t - b);
+    mat[1][3] = -(t + b) / (t - b);
+    mat[2][2] = -2.0f / (f - n);
+    mat[3][0] = -(r + l) / (r - l);
+    mat[3][2] = -(f + n) / (f - n);
+    mat[3][3] = 1.0f;
+
+    return mat;
+}

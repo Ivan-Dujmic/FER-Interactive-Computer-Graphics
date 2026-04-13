@@ -9,4 +9,5 @@ public:
     static glm::mat4 rotate3D(glm::vec3 axis, float angle);
     static glm::mat4 lookAtMatrix(glm::vec3 eye, glm::vec3 center, glm::vec3 viewUp);
     static glm::mat4 frustum(float l, float r, float b, float t, float n, float f);
+    static glm::mat4 ortho(float l, float r, float b, float t, float n, float f);
 };
