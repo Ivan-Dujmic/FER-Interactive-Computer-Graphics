@@ -19,3 +19,7 @@ First two lab exercises were done without utilizing OpenGL drawing functionaliti
 
 ## Lab4
 - Load and draw scene wireframe
+
+## Lab5
+- Transformations
+- Camera and object movement
