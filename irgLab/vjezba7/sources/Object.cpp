@@ -3,7 +3,14 @@
 
 Object::Object(std::shared_ptr<Shader> shader, std::vector<std::shared_ptr<Renderable>> scene) :
     shader(std::move(shader)),
-    scene(std::move(scene))
+    scene(std::move(scene)),
+    color(1.0f, 0.0f, 1.0f)
+{}
+
+Object::Object(std::shared_ptr<Shader> shader, std::vector<std::shared_ptr<Renderable>> scene, glm::vec3 color) :
+    shader(std::move(shader)),
+    scene(std::move(scene)),
+    color(color)
 {}
 
 void Object::addRenderable(std::shared_ptr<Renderable> r) {
@@ -12,6 +19,10 @@ void Object::addRenderable(std::shared_ptr<Renderable> r) {
 
 void Object::setShader(std::shared_ptr<Shader> s) {
     shader = std::move(s);
+}
+
+void Object::setColor(glm::vec3 c) {
+    color = c;
 }
 
 void Object::normalize() {
@@ -31,7 +42,7 @@ void Object::render(glm::mat4 viewMatrix, glm::mat4 perspectiveMatrix) const {
     }
 
     shader->use();
-    shader->setUniform("uColor", glm::vec3(1.0f, 0.0f, 1.0f));
+    shader->setUniform("uColor", color);
     shader->setUniform("uModel", getModelMatrix());
     shader->setUniform("uView", viewMatrix);
     shader->setUniform("uProjection", perspectiveMatrix);

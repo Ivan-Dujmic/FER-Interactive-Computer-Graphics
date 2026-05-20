@@ -34,6 +34,6 @@ public:
     ResourceManager& operator=(const ResourceManager&) = delete;
 
     std::vector<std::shared_ptr<Renderable>> getScene(const std::string &name);
-    std::shared_ptr<Shader> getShader(const std::string &name);
+    std::shared_ptr<Shader> getShader(const std::string &name, bool useGeometryShader = true);
     // std::shared_ptr<Texture> getTexture(std::string name);
 };

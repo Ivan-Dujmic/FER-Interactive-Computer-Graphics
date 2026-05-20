@@ -93,13 +93,14 @@ TriangleMesh ResourceManager::parseMesh(aiMesh* mesh) const {
     return {std::move(vertices), std::move(normals), std::move(uvCoords), std::move(indices)};
 }
 
-std::shared_ptr<Shader> ResourceManager::getShader(const std::string &name) {
+// Very bad to have usesGeometryShader as a parameter here, but it will do for now
+std::shared_ptr<Shader> ResourceManager::getShader(const std::string &name, bool useGeometryShader) {
     auto it = shaders.find(name);
     if (it != shaders.end()) {
         return it->second;
     }
 
-    std::shared_ptr<Shader> shader = std::make_shared<Shader>(name, true);
+    std::shared_ptr<Shader> shader = std::make_shared<Shader>(name, useGeometryShader);
     shaders[name] = shader;
     return shader;
 }
