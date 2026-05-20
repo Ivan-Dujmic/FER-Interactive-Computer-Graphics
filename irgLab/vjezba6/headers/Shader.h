@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sstream>
 
-#define SHADERS_PATH "/vjezba5b/shaders/"
+#define SHADERS_PATH "/vjezba6/shaders/"
 
 class Shader {
 private:
@@ -16,6 +16,7 @@ public:
 	unsigned int ID;
 
 	Shader(const std::string &name);
+	Shader(const std::string &name, bool useGeometryShader);
 	~Shader();
 
 	void use();

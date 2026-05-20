@@ -99,7 +99,7 @@ std::shared_ptr<Shader> ResourceManager::getShader(const std::string &name) {
         return it->second;
     }
 
-    std::shared_ptr<Shader> shader = std::make_shared<Shader>(name);
+    std::shared_ptr<Shader> shader = std::make_shared<Shader>(name, true);
     shaders[name] = shader;
     return shader;
 }

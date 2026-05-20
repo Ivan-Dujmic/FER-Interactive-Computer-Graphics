@@ -22,7 +22,8 @@
 
 #define WIDTH 1000
 #define HEIGHT 1000
-#define SHADER "wireframe"
+#define SHADER1 "plane_side"
+#define SHADER2 "winding"
 #define CLEAR_COLOR glm::vec3(0.0f)
 #define SPEED 7.5f
 #define SENSETIVITY 0.1
@@ -39,22 +40,23 @@ int main(int argc, char *argv[]) {
 	std::shared_ptr<Camera> camera = std::make_shared<Camera>();
 	Renderer renderer(camera);
 	ResourceManager &resources = ResourceManager::getInstance();
-	std::shared_ptr<Shader> shader = resources.getShader(SHADER);
+	std::shared_ptr<Shader> shader1 = resources.getShader(SHADER1);
+	std::shared_ptr<Shader> shader2 = resources.getShader(SHADER2);
 	
 	std::vector<std::shared_ptr<Renderable>> scene1 = resources.getScene(argv[1]);
-	std::shared_ptr<Object> object1 = std::make_shared<Object>(shader, scene1);
+	std::shared_ptr<Object> object1 = std::make_shared<Object>(shader1, scene1);
 	object1->normalize();
 	object1->globalMove(glm::vec3(-1.5f, 0.0f, 0.0f));
 	renderer.addObject(object1);
 
-	std::shared_ptr<Object> object2 = std::make_shared<Object>(shader, scene1);
+	std::shared_ptr<Object> object2 = std::make_shared<Object>(shader2, scene1);
 	object2->normalize();
 	object2->globalMove(glm::vec3(1.5f, 0.0f, 0.0f));
 	object2->setScale(glm::vec3(0.7f, 2.0f, 1.3f));
 	renderer.addObject(object2);
 
 	std::vector<std::shared_ptr<Renderable>> scene2 = resources.getScene(argv[2]);
-	std::shared_ptr<Object> object3 = std::make_shared<Object>(shader, scene2);
+	std::shared_ptr<Object> object3 = std::make_shared<Object>(shader1, scene2);
 	object3->normalize();
 	object3->globalMove(glm::vec3(-1.5f, 0.0f, -2.5f));
 	renderer.addObject(object3);

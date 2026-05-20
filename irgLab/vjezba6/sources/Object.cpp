@@ -35,6 +35,9 @@ void Object::render(glm::mat4 viewMatrix, glm::mat4 perspectiveMatrix) const {
     shader->setUniform("uModel", getModelMatrix());
     shader->setUniform("uView", viewMatrix);
     shader->setUniform("uProjection", perspectiveMatrix);
+    glm::mat4 invView = glm::inverse(viewMatrix);
+    glm::vec3 eye = glm::vec3(invView[3]);
+    shader->setUniform("eye", eye);
 
     for (const std::shared_ptr<Renderable> &r : scene) {
         r->draw();

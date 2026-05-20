@@ -23,19 +23,28 @@ void Shader::checkCompilerErrors(unsigned int shader, std::string type) {
 	}
 }
 
-Shader::Shader(const std::string &name) {
-	//std::cout << vertexPath << std::endl;
+Shader::Shader(const std::string &name)
+	: Shader(name, false)
+{}
+
+Shader::Shader(const std::string &name, bool useGeometryShader) {
 	std::string vertexCode;
 	std::string fragmentCode;
+	std::string geometryCode;
+
 	std::ifstream vShaderFile;
 	std::ifstream fShaderFile;
+	std::ifstream gShaderFile;
 
 	// Ensure ifstream objects can throw exceptions:
 	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
 	try {
 		std::string pathVert = std::filesystem::current_path().string() + SHADERS_PATH + name + "/" + name + ".vert";
 		std::string pathFrag = std::filesystem::current_path().string() + SHADERS_PATH + name + "/" + name + ".frag";
+		std::string pathGeom = std::filesystem::current_path().string() + SHADERS_PATH + name + "/" + name + ".geom";
 
 		// Open files
 		vShaderFile.open(pathVert);
@@ -53,15 +62,24 @@ Shader::Shader(const std::string &name) {
 		// Convert stream into string
 		vertexCode = vShaderStream.str();
 		fragmentCode = fShaderStream.str();
+
+		if (useGeometryShader) {
+			gShaderFile.open(pathGeom);
+			std::stringstream gShaderStream;
+			gShaderStream << gShaderFile.rdbuf();
+			gShaderFile.close();
+			geometryCode = gShaderStream.str();
+		}
 	} catch (std::ifstream::failure e) {
 		fprintf(stderr, "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ\n");
 	}
 
 	const char* vShaderCode = vertexCode.c_str();
 	const char* fShaderCode = fragmentCode.c_str();
+	const char* gShaderCode = geometryCode.c_str();
 
 	// 2. compile shaders
-	unsigned int vertex, fragment;
+	unsigned int vertex, fragment, geometry;
 	int success;
 	char infoLog[512];
 
@@ -77,16 +95,30 @@ Shader::Shader(const std::string &name) {
 	glCompileShader(fragment); // Compile
 	checkCompilerErrors(fragment, "FRAGMENT");
 
+	if (useGeometryShader) {
+		// Geometry shader
+		geometry = glCreateShader(GL_GEOMETRY_SHADER); // Create object
+		glShaderSource(geometry, 1, &gShaderCode, NULL); // Pass source code to OpenGL
+		glCompileShader(geometry); // Compile
+		checkCompilerErrors(geometry, "GEOMETRY");
+	}
+
 	// Shader program
 	ID = glCreateProgram();
 	glAttachShader(ID, vertex);
 	glAttachShader(ID, fragment);
+	if (useGeometryShader) {
+		glAttachShader(ID, geometry);
+	}
 	glLinkProgram(ID);
 	checkCompilerErrors(ID, "PROGRAM");
 
 	// Delete the shaders as they're linked into our program now and no longer necessary
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
+	if (useGeometryShader) {
+		glDeleteShader(geometry);
+	}
 }
 
 Shader::~Shader() {
