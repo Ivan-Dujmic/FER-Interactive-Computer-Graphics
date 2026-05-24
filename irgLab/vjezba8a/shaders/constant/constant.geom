@@ -56,6 +56,11 @@ void main() {
 
     vec3 center = (p0 + p1 + p2) / 3.0;
     vec3 normal = normalize(cross(p2 - p0, p1 - p0));
+    vec3 viewDir = normalize(eye - center);
+
+    if (dot(normal, viewDir) <= 0.0) {
+        return;
+    }
 
     gColor = calcPhong(center, normal);
 
