@@ -90,6 +90,8 @@ Graphics::Graphics(WindowState windowState, glm::vec3 clearColor) :
     gladLoadGL();
     setClearColor(clearColor);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CW);
     glDepthFunc(GL_LESS);
     glViewport(0, 0, windowState.getWindowWidth(), windowState.getWindowHeight());
 }

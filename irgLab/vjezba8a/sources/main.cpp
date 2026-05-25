@@ -72,9 +72,9 @@ int main(int argc, char *argv[]) {
 	std::shared_ptr<Camera> camera = std::make_shared<Camera>();
 	std::shared_ptr<Light> light = std::make_shared<Light>(
 		glm::vec3(0.0f, 3.0f, 3.0f),
-		glm::vec3(0.2f),
-		glm::vec3(0.9f),
-		glm::vec3(1.0f)
+		glm::vec3(0.2f, 0.2f, 0.2f),
+		glm::vec3(0.9f, 0.9f, 0.9f),
+		glm::vec3(1.0f, 1.0f, 1.0f)
 	);
 	Renderer renderer(camera, light);
 	ResourceManager &resources = ResourceManager::getInstance();

@@ -29,10 +29,16 @@ uniform Material material;
 
 out vec3 gColor;
 
-vec3 calcPhong(vec3 position, vec3 normal) {
-    vec3 N = normalize(normal);
-    vec3 L = normalize(light.position - position);
-    vec3 V = normalize(eye - position);
+void main() {
+    vec3 p0 = vec3(uModel * vec4(vPos[0], 1.0));
+    vec3 p1 = vec3(uModel * vec4(vPos[1], 1.0));
+    vec3 p2 = vec3(uModel * vec4(vPos[2], 1.0));
+
+    vec3 center = (p0 + p1 + p2) / 3.0;
+
+    vec3 N = normalize(cross(p2 - p0, p1 - p0));
+    vec3 L = normalize(light.position - center);
+    vec3 V = normalize(eye - center);
     vec3 R = reflect(-L, N);
 
     vec3 ambient = light.ambient * material.ambient;
@@ -46,23 +52,7 @@ vec3 calcPhong(vec3 position, vec3 normal) {
     }   
     vec3 specular = light.specular * material.specular * specularFactor;
 
-    return clamp(ambient + diffuse + specular, 0.0, 1.0);
-}
-
-void main() {
-    vec3 p0 = vec3(uModel * vec4(vPos[0], 1.0));
-    vec3 p1 = vec3(uModel * vec4(vPos[1], 1.0));
-    vec3 p2 = vec3(uModel * vec4(vPos[2], 1.0));
-
-    vec3 center = (p0 + p1 + p2) / 3.0;
-    vec3 normal = normalize(cross(p2 - p0, p1 - p0));
-    vec3 viewDir = normalize(eye - center);
-
-    if (dot(normal, viewDir) <= 0.0) {
-        return;
-    }
-
-    gColor = calcPhong(center, normal);
+    gColor = clamp(ambient + diffuse + specular, 0.0, 1.0);
 
     gl_Position = uProjection * uView * vec4(p0, 1.0);
     EmitVertex();
