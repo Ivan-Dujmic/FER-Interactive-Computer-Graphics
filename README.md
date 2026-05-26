@@ -23,3 +23,13 @@ First two lab exercises were done without utilizing OpenGL drawing functionaliti
 ## Lab5
 - Transformations
 - Camera and object movement
+
+## Lab6
+- Back face culling
+- Geometry shaders
+
+## Lab7
+- Bezier curves
+
+## Lab8
+- Phong shading
