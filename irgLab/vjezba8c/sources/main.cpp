@@ -35,6 +35,8 @@
 #define SHADER2 "winding"
 #define SHADER3 "wireframe"
 #define SHADER4 "constant"
+#define SHADER5 "gouraud"
+#define SHADER6 "phong"
 #define CLEAR_COLOR glm::vec3(0.0f)
 #define SPEED 7.5f
 #define SENSETIVITY 0.1f
@@ -81,7 +83,7 @@ int main(int argc, char *argv[]) {
 	std::shared_ptr<Shader> shader1 = resources.getShader(SHADER1);
 	std::shared_ptr<Shader> shader2 = resources.getShader(SHADER2);
 	std::shared_ptr<Shader> shader3 = resources.getShader(SHADER3, false);
-	std::shared_ptr<Shader> shader4 = resources.getShader(SHADER4);
+	std::shared_ptr<Shader> shader4 = resources.getShader(SHADER6, false);
 	
 	std::vector<std::shared_ptr<Renderable>> scene1 = resources.getScene(argv[1]);
 	std::shared_ptr<Object> object1 = std::make_shared<Object>(shader4, scene1);
