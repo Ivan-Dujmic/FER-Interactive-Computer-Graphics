@@ -2,11 +2,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <assimp/Importer.hpp>      
-#include <assimp/scene.h>           
-#include <assimp/postprocess.h> 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -83,17 +78,15 @@ int main(int argc, char *argv[]) {
 	std::shared_ptr<Shader> shader1 = resources.getShader(SHADER1);
 	std::shared_ptr<Shader> shader2 = resources.getShader(SHADER2);
 	std::shared_ptr<Shader> shader3 = resources.getShader(SHADER3, false);
-	std::shared_ptr<Shader> shader4 = resources.getShader(SHADER4);
-	std::shared_ptr<Shader> shader5 = resources.getShader(SHADER5, false);
-	std::shared_ptr<Shader> shader6 = resources.getShader(SHADER6, false);
+	std::shared_ptr<Shader> shader4 = resources.getShader(SHADER6, false);
 	
 	std::vector<std::shared_ptr<Renderable>> scene1 = resources.getScene(argv[1]);
-	std::shared_ptr<Object> object1 = std::make_shared<Object>(shader6, scene1);
+	std::shared_ptr<Object> object1 = std::make_shared<Object>(shader4, scene1);
 	object1->normalize();
 	object1->globalMove(glm::vec3(-1.5f, 0.0f, 0.0f));
 	renderer.addObject(object1);
 	
-	std::shared_ptr<Object> object2 = std::make_shared<Object>(shader5, scene1);
+	std::shared_ptr<Object> object2 = std::make_shared<Object>(shader4, scene1);
 	object2->normalize();
 	object2->globalMove(glm::vec3(1.5f, 0.0f, 0.0f));
 	object2->setScale(glm::vec3(0.7f, 2.0f, 1.3f));
