@@ -20,13 +20,13 @@ struct Material {
     vec3 diffuse;
     vec3 specular;
     float shininess;
+
+    bool hasDiffuseTexture;
+    sampler2D diffuseTexture;
 };
 
 uniform Light light;
 uniform Material material;
-
-uniform sampler2D diffuseTexture;
-uniform bool hasDiffuseTexture;
 
 void main() {
     vec3 N = normalize(vNormal);
@@ -36,8 +36,8 @@ void main() {
 
     vec3 diffuseBase = material.diffuse;    
 
-    if (hasDiffuseTexture) {
-        diffuseBase = texture(diffuseTexture, vTexCoords).rgb;
+    if (material.hasDiffuseTexture) {
+        diffuseBase = texture(material.diffuseTexture, vTexCoords).rgb;
     }
 
     vec3 ambient = light.ambient * material.ambient;

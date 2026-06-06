@@ -180,11 +180,11 @@ void TriangleMesh::draw(const Shader &shader) const {
     shader.setUniform("material.shininess", material.getShininess());
 
     bool hasTexture = diffuseTexture != nullptr && diffuseTexture->isValid();
-    shader.setUniform("hasDiffuseTexture", hasTexture);
+    shader.setUniform("material.hasDiffuseTexture", hasTexture);
 
     if (hasTexture) {
         diffuseTexture->bind(0);
-        shader.setUniform("diffuseTexture", 0);
+        shader.setUniform("material.diffuseTexture", 0);
     }
 
     glBindVertexArray(VAO); {
