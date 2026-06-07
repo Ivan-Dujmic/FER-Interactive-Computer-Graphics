@@ -164,19 +164,20 @@ int main(int argc, char *argv[]) {
 	renderer.addObject(lightMarkerObjectY);
 	renderer.addObject(lightMarkerObjectZ);
 
-	std::function<void(glm::vec2, glm::vec2)> myCursorPosCallback =
-	[camera](glm::vec2 prev, glm::vec2 curr) {
-		float deltaX = curr.x - prev.x;
-		float deltaY = curr.y - prev.y;
-		camera->rotateFPS(SENSETIVITY * deltaX, SENSETIVITY * deltaY);
-	};graphics.setMyCursorPosCallback(myCursorPosCallback);
-
+    
     std::vector<glm::vec3> controlPoints;
     std::array<bool, 1024> previousKeys{};
     bool animationActive = false;
     float animationTime = 0.0f;
-
+    
 	std::shared_ptr<Transform> character = camera;
+
+	std::function<void(glm::vec2, glm::vec2)> myCursorPosCallback =
+	[&character](glm::vec2 prev, glm::vec2 curr) {
+		float deltaX = curr.x - prev.x;
+		float deltaY = curr.y - prev.y;
+		character->rotateFPS(SENSETIVITY * deltaX, SENSETIVITY * deltaY);
+	}; graphics.setMyCursorPosCallback(myCursorPosCallback);
 
     std::cout << "Controls:\n"
               << "mouse - rotate camera\n"
