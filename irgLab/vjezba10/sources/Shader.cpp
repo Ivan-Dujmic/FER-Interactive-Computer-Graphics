@@ -125,7 +125,7 @@ Shader::~Shader() {
 	glDeleteProgram(ID);
 }
 
-void Shader::use() {
+void Shader::use() const {
 	glUseProgram(ID); // Makes this shader program active for the subsequent drawing calls
 }
 

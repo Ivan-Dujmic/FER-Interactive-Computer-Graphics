@@ -14,6 +14,10 @@ glm::vec3 Transform::getPosition() const {
     return glm::vec3(position);
 }
 
+glm::vec3 Transform::getFront() const {
+    return glm::normalize(glm::vec3(front));
+}
+
 void Transform::setPosition(glm::vec3 p) {
     position = glm::vec4(p, 1.0f);
 }
@@ -70,7 +74,3 @@ void Transform::setOrientation(glm::vec3 center, glm::vec3 viewUp) {
     right = glm::vec4(newRight, 0.0f);
     up = glm::vec4(newUp, 0.0f);
 }
-
-// void Transform::update(float deltaTime);
-
-// void Transform::registerAnimation(Lines curve);

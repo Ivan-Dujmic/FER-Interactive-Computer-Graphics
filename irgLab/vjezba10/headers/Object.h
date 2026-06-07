@@ -27,4 +27,13 @@ public:
     void normalize();
 
     void render(glm::mat4 viewMatrix, glm::mat4 perspectiveMatrix, const Light &light) const;
+    void render(
+        glm::mat4 viewMatrix,
+        glm::mat4 perspectiveMatrix,
+        const Light &light,
+        glm::mat4 lightViewMatrix,
+        glm::mat4 lightPerspectiveMatrix,
+        unsigned int shadowMapTexture
+    ) const;
+    void renderDepth(glm::mat4 lightViewMatrix, glm::mat4 lightPerspectiveMatrix, const Shader &depthShader) const;
 };

@@ -23,6 +23,8 @@
 #include "Curve.h"
 #include "BezierBuilder.h"
 #include "Light.h"
+#include "TriangleMesh.h"
+#include "Material.h"
 
 #define WIDTH 1000
 #define HEIGHT 1000
@@ -60,7 +62,7 @@ static void refreshCurves(
 // argv[0] = program path ; argv[1...] = objects to load
 int main(int argc, char *argv[]) {
 	if (argc < 3) {
-		std::cerr << "Usage: ./vjezba5 <.obj name> <.obj name>\n";
+		std::cerr << "Usage: " << argv[0] << " <.obj name> <.obj name>\n";
 		return EXIT_FAILURE;
 	}
 	WindowState windowState(WIDTH, HEIGHT);
@@ -81,6 +83,25 @@ int main(int argc, char *argv[]) {
 	std::shared_ptr<Shader> shader4 = resources.getShader(SHADER6, false);
 	
 	std::vector<std::shared_ptr<Renderable>> scene1 = resources.getScene(argv[1]);
+	std::vector<std::shared_ptr<Renderable>> scene2 = resources.getScene(argv[2]);
+
+    std::vector<std::shared_ptr<Renderable>> floorScene;
+    floorScene.push_back(std::make_shared<TriangleMesh>(
+        std::vector<glm::vec3>{
+            {-8.0f, -1.0f, -8.0f}, { 8.0f, -1.0f, -8.0f},
+            { 8.0f, -1.0f,  8.0f}, {-8.0f, -1.0f,  8.0f}
+        },
+        std::vector<glm::vec3>{
+            {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}
+        },
+        std::vector<glm::vec2>{{0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}},
+        std::vector<GLuint>{0, 2, 1, 0, 3, 2, 0, 1, 2, 0, 2, 3},
+        Material(glm::vec3(0.25f), glm::vec3(0.65f), glm::vec3(0.05f), 16.0f)
+    ));
+    auto floorObject = std::make_shared<Object>(shader4, floorScene);
+    renderer.addObject(floorObject);
+
 	std::shared_ptr<Object> object1 = std::make_shared<Object>(shader4, scene1);
 	object1->normalize();
 	object1->globalMove(glm::vec3(-1.5f, 0.0f, 0.0f));
@@ -92,14 +113,26 @@ int main(int argc, char *argv[]) {
 	object2->setScale(glm::vec3(0.7f, 2.0f, 1.3f));
 	renderer.addObject(object2);
 	
-	std::vector<std::shared_ptr<Renderable>> scene2 = resources.getScene(argv[2]);
 	std::shared_ptr<Object> object3 = std::make_shared<Object>(shader4, scene2);
 	object3->normalize();
 	object3->globalMove(glm::vec3(-1.5f, 0.0f, -2.5f));
 	renderer.addObject(object3);
+
+    for (int i = 0; i < 9; ++i) {
+        const bool useFirstScene = (i % 2 == 0);
+        auto extra = std::make_shared<Object>(shader4, useFirstScene ? scene1 : scene2);
+        extra->normalize();
+        float x = -4.0f + static_cast<float>(i % 5) * 2.0f;
+        float z = -5.0f + static_cast<float>(i / 5) * 2.2f;
+        extra->globalMove(glm::vec3(x, -0.2f, z));
+        float s = 0.45f + 0.08f * static_cast<float>(i % 3);
+        extra->setScale(glm::vec3(s));
+        renderer.addObject(extra);
+    }
 	
-	camera->setPosition(glm::vec3(3.0f, 4.0f, 1.0f));
-	camera->setOrientation(object1->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
+	camera->setPosition(glm::vec3(3.0f, 4.0f, 6.0f));
+	camera->setOrientation(glm::vec3(0.0f, 0.0f, -1.5f), glm::vec3(0.0f, 1.0f, 0.0f));
+    light->setOrientation(glm::vec3(0.0f, -0.4f, -1.5f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     auto controlPolygon = std::make_shared<Curve>();
     auto approximationCurve = std::make_shared<Curve>();
@@ -224,7 +257,6 @@ int main(int argc, char *argv[]) {
 		lightMarkerObjectY->setPosition(light->getPosition());
 		lightMarkerObjectZ->setPosition(light->getPosition());
 
-		graphics.frameBegin();
 		renderer.render();
 		graphics.frameEnd();
 	}

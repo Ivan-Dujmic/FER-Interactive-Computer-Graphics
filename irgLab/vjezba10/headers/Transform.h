@@ -17,6 +17,7 @@ public:
     ~Transform() = default;
 
     glm::vec3 getPosition() const;
+    glm::vec3 getFront() const;
     void setPosition(glm::vec3 p);
     void setScale(glm::vec3 s);
 

@@ -33,3 +33,9 @@ First two lab exercises were done without utilizing OpenGL drawing functionaliti
 
 ## Lab8
 - Phong shading
+
+## Lab9
+- Textures
+
+## Lab10
+- Shadows
