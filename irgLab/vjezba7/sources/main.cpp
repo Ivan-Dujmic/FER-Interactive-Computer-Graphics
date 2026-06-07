@@ -61,7 +61,7 @@ static void refreshCurves(
 // argv[0] = program path ; argv[1...] = objects to load
 int main(int argc, char *argv[]) {
 	if (argc < 3) {
-		std::cerr << "Usage: ./vjezba5 <.obj name> <.obj name>\n";
+		std::cerr << "Usage: " << argv[0] << " <.obj name> <.obj name>\n";
 		return EXIT_FAILURE;
 	}
 	WindowState windowState(WIDTH, HEIGHT);

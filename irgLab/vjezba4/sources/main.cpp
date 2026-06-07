@@ -27,7 +27,7 @@
 // argv[0] = program path ; argv[1] = object to load
 int main(int argc, char *argv[]) {
 	if (argc < 2) {
-		std::cerr << "Usage: ./vjezba4 <.obj name>\n";
+		std::cerr << "Usage: " << argv[0] << " <.obj name>\n";
 		return EXIT_FAILURE;
 	}
 	WindowState windowState(WIDTH, HEIGHT);
