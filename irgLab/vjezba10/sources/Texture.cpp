@@ -45,30 +45,28 @@ Texture::Texture(const std::string &path) :
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Repeat wrapping for U coordinate
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Repeat wrapping for V coordinate
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // Linear interpolation between mipmap levels for minification
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear interpolation between pixels for magnification
     
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    glTexImage2D(
+    glTexImage2D( // Uploads image to active texture unit on GPU
         GL_TEXTURE_2D,
-        0,
-        format,
+        0, // Original, full resolution
+        format, // Format to store in GPU
         width,
         height,
-        0,
-        format,
-        GL_UNSIGNED_BYTE,
-        data
+        0, // No border (legacy OpenGL requirement)
+        format, // Format of the input data
+        GL_UNSIGNED_BYTE, // Type of each channel
+        data // Pointer to pixels
     );
 
     glGenerateMipmap(GL_TEXTURE_2D);
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    stbi_image_free(data);
+    stbi_image_free(data); // Free in RAM
 }
 
 Texture::Texture(Texture &&other) noexcept :

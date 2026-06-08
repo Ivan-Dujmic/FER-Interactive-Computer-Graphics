@@ -22,7 +22,6 @@ private:
     GLuint depthMapFBO = 0;
     GLuint depthMap = 0;
 
-    glm::mat4 getLightProjectionMatrix() const;
     void initShadowMap();
     void renderDepthPass(const glm::mat4 &lightView, const glm::mat4 &lightProjection) const;
     void renderScenePass(const glm::mat4 &lightView, const glm::mat4 &lightProjection) const;

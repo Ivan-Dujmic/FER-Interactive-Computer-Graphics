@@ -90,10 +90,6 @@ void Renderer::setLight(std::shared_ptr<Light> l) {
     light = std::move(l);
 }
 
-glm::mat4 Renderer::getLightProjectionMatrix() const {
-    return MyGLM::frustum(-2.5f, 2.5f, -2.5f, 2.5f, 1.0f, 30.0f);
-}
-
 void Renderer::renderDepthPass(const glm::mat4 &lightView, const glm::mat4 &lightProjection) const {
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -132,7 +128,7 @@ void Renderer::render() const {
     glGetIntegerv(GL_VIEWPORT, viewport);
 
     glm::mat4 lightView = light->getViewMatrix();
-    glm::mat4 lightProjection = getLightProjectionMatrix();
+    glm::mat4 lightProjection = light->getPerspectiveMatrix();
 
     renderDepthPass(lightView, lightProjection);
 

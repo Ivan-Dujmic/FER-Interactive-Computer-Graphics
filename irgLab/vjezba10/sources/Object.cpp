@@ -70,8 +70,8 @@ void Object::render(
     shader->setUniform("light.ambient", light.getAmbientIntensity());
     shader->setUniform("light.diffuse", light.getDiffuseIntensity());
     shader->setUniform("light.specular", light.getSpecularIntensity());
-    shader->setUniform("light.cutOff", glm::cos(glm::radians(22.5f)));
-    shader->setUniform("light.outerCutOff", glm::cos(glm::radians(30.0f)));
+    shader->setUniform("light.cutOff", glm::cos(glm::radians(light.getCutoffDeg())));
+    shader->setUniform("light.outerCutOff", glm::cos(glm::radians(light.getOuterCutoffDeg())));
 
     if (shadowMapTexture != 0) {
         glActiveTexture(GL_TEXTURE1);
