@@ -26,31 +26,36 @@ Renderer::~Renderer() {
 }
 
 void Renderer::initShadowMap() {
-    glGenFramebuffers(1, &depthMapFBO);
+    glGenFramebuffers(1, &depthMapFBO); // Render the first pass into this
 
     glGenTextures(1, &depthMap);
     glBindTexture(GL_TEXTURE_2D, depthMap);
     glTexImage2D(
         GL_TEXTURE_2D,
-        0,
-        GL_DEPTH_COMPONENT,
+        0, // Mipmap level
+        GL_DEPTH_COMPONENT, // Internal format - store only depth
         SHADOW_WIDTH,
         SHADOW_HEIGHT,
-        0,
-        GL_DEPTH_COMPONENT,
+        0, // Border, must be 0
+        GL_DEPTH_COMPONENT, // Format we are providing
         GL_FLOAT,
-        nullptr
+        nullptr // We are only reserving memory, not uploading data yet
     );
 
+    // We don't need interpolation when sampling from depth map
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f}; // Consider outside of shadow map as lit
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+
+    // When rendering into FBO, fragment depth is automatically written into depthMap
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+
+    // And don't use color buffer
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
 

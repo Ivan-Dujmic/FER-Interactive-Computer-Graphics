@@ -35,16 +35,17 @@ uniform Light light;
 uniform Material material;
 
 float calculateShadow(vec4 lightSpacePos, vec3 normal, vec3 lightDir) {
-    if (!useShadowMap) return 0.0;
+    if (!useShadowMap) return 0.0; // Not shadowed
 
     vec3 projCoords = lightSpacePos.xyz / lightSpacePos.w;
-    projCoords = projCoords * 0.5 + 0.5;
+    projCoords = projCoords * 0.5 + 0.5; // Same range as UVCoords
 
+    // If outside of light view then set to not shadowed
     if (projCoords.z > 1.0) return 0.0;
     if (projCoords.x < 0.0 || projCoords.x > 1.0 ||
         projCoords.y < 0.0 || projCoords.y > 1.0) return 0.0;
 
-    float currentDepth = projCoords.z;
+    float currentDepth = projCoords.z; // Compare against the first scan depth
     float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.001);
 
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
