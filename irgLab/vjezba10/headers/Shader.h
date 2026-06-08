@@ -10,19 +10,19 @@
 
 class Shader {
 private:
-	void checkCompilerErrors(unsigned int shader, std::string type);
+    void checkCompilerErrors(unsigned int shader, std::string type);
 
 public:
-	unsigned int ID;
+    unsigned int ID;
 
-	Shader(const std::string &name);
-	Shader(const std::string &name, bool useGeometryShader);
-	~Shader();
+    Shader(const std::string &name);
+    Shader(const std::string &name, bool useGeometryShader);
+    ~Shader();
 
-	void use() const;
-	void setUniform(const std::string &name, bool value) const;
-	void setUniform(const std::string &name, int value) const;
-	void setUniform(const std::string &name, float value) const;
-	void setUniform(const std::string &name, const glm::vec3 &vec) const;
-	void setUniform(const std::string &name, const glm::mat4 &mat) const;
+    void use() const;
+    void setUniform(const std::string &name, bool value) const;
+    void setUniform(const std::string &name, int value) const;
+    void setUniform(const std::string &name, float value) const;
+    void setUniform(const std::string &name, const glm::vec3 &vec) const;
+    void setUniform(const std::string &name, const glm::mat4 &mat) const;
 };

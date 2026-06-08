@@ -61,29 +61,29 @@ static void refreshCurves(
 
 // argv[0] = program path ; argv[1...] = objects to load
 int main(int argc, char *argv[]) {
-	if (argc < 3) {
-		std::cerr << "Usage: " << argv[0] << " <.obj name> <.obj name>\n";
-		return EXIT_FAILURE;
-	}
-	WindowState windowState(WIDTH, HEIGHT);
-	Graphics graphics(windowState, CLEAR_COLOR);
-	FPSManager fpsManager(graphics.getWindow(), 60, 1.0, "Window");
-	std::shared_ptr<Camera> camera = std::make_shared<Camera>();
-	std::shared_ptr<Light> light = std::make_shared<Light>(
-		glm::vec3(0.0f, 3.0f, 3.0f),
-		glm::vec3(0.2f, 0.2f, 0.2f),
-		glm::vec3(0.9f, 0.9f, 0.9f),
-		glm::vec3(1.0f, 1.0f, 1.0f)
-	);
-	Renderer renderer(camera, light);
-	ResourceManager &resources = ResourceManager::getInstance();
-	std::shared_ptr<Shader> shader1 = resources.getShader(SHADER1);
-	std::shared_ptr<Shader> shader2 = resources.getShader(SHADER2);
-	std::shared_ptr<Shader> shader3 = resources.getShader(SHADER3, false);
-	std::shared_ptr<Shader> shader4 = resources.getShader(SHADER6, false);
-	
-	std::vector<std::shared_ptr<Renderable>> scene1 = resources.getScene(argv[1]);
-	std::vector<std::shared_ptr<Renderable>> scene2 = resources.getScene(argv[2]);
+    if (argc < 3) {
+        std::cerr << "Usage: " << argv[0] << " <.obj name> <.obj name>\n";
+        return EXIT_FAILURE;
+    }
+    WindowState windowState(WIDTH, HEIGHT);
+    Graphics graphics(windowState, CLEAR_COLOR);
+    FPSManager fpsManager(graphics.getWindow(), 60, 1.0, "Window");
+    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    std::shared_ptr<Light> light = std::make_shared<Light>(
+        glm::vec3(0.0f, 3.0f, 3.0f),
+        glm::vec3(0.2f, 0.2f, 0.2f),
+        glm::vec3(0.9f, 0.9f, 0.9f),
+        glm::vec3(1.0f, 1.0f, 1.0f)
+    );
+    Renderer renderer(camera, light);
+    ResourceManager &resources = ResourceManager::getInstance();
+    std::shared_ptr<Shader> shader1 = resources.getShader(SHADER1);
+    std::shared_ptr<Shader> shader2 = resources.getShader(SHADER2);
+    std::shared_ptr<Shader> shader3 = resources.getShader(SHADER3, false);
+    std::shared_ptr<Shader> shader4 = resources.getShader(SHADER6, false);
+    
+    std::vector<std::shared_ptr<Renderable>> scene1 = resources.getScene(argv[1]);
+    std::vector<std::shared_ptr<Renderable>> scene2 = resources.getScene(argv[2]);
 
     std::vector<std::shared_ptr<Renderable>> floorScene;
     floorScene.push_back(std::make_shared<TriangleMesh>(
@@ -102,21 +102,21 @@ int main(int argc, char *argv[]) {
     auto floorObject = std::make_shared<Object>(shader4, floorScene);
     renderer.addObject(floorObject);
 
-	std::shared_ptr<Object> object1 = std::make_shared<Object>(shader4, scene1);
-	object1->normalize();
-	object1->globalMove(glm::vec3(-1.5f, 0.0f, 0.0f));
-	renderer.addObject(object1);
-	
-	std::shared_ptr<Object> object2 = std::make_shared<Object>(shader4, scene1);
-	object2->normalize();
-	object2->globalMove(glm::vec3(1.5f, 0.0f, 0.0f));
-	object2->setScale(glm::vec3(0.7f, 2.0f, 1.3f));
-	renderer.addObject(object2);
-	
-	std::shared_ptr<Object> object3 = std::make_shared<Object>(shader4, scene2);
-	object3->normalize();
-	object3->globalMove(glm::vec3(-1.5f, 0.0f, -2.5f));
-	renderer.addObject(object3);
+    std::shared_ptr<Object> object1 = std::make_shared<Object>(shader4, scene1);
+    object1->normalize();
+    object1->globalMove(glm::vec3(-1.5f, 0.0f, 0.0f));
+    renderer.addObject(object1);
+    
+    std::shared_ptr<Object> object2 = std::make_shared<Object>(shader4, scene1);
+    object2->normalize();
+    object2->globalMove(glm::vec3(1.5f, 0.0f, 0.0f));
+    object2->setScale(glm::vec3(0.7f, 2.0f, 1.3f));
+    renderer.addObject(object2);
+    
+    std::shared_ptr<Object> object3 = std::make_shared<Object>(shader4, scene2);
+    object3->normalize();
+    object3->globalMove(glm::vec3(-1.5f, 0.0f, -2.5f));
+    renderer.addObject(object3);
 
     for (int i = 0; i < 9; ++i) {
         const bool useFirstScene = (i % 2 == 0);
@@ -129,9 +129,9 @@ int main(int argc, char *argv[]) {
         extra->setScale(glm::vec3(s));
         renderer.addObject(extra);
     }
-	
-	camera->setPosition(glm::vec3(3.0f, 4.0f, 6.0f));
-	camera->setOrientation(glm::vec3(0.0f, 0.0f, -1.5f), glm::vec3(0.0f, 1.0f, 0.0f));
+    
+    camera->setPosition(glm::vec3(3.0f, 4.0f, 6.0f));
+    camera->setOrientation(glm::vec3(0.0f, 0.0f, -1.5f), glm::vec3(0.0f, 1.0f, 0.0f));
     light->setOrientation(glm::vec3(0.0f, -0.4f, -1.5f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     auto controlPolygon = std::make_shared<Curve>();
@@ -141,18 +141,18 @@ int main(int argc, char *argv[]) {
     auto axisX = std::make_shared<Curve>(std::vector<glm::vec3>{glm::vec3(0.0f), glm::vec3(3.0f, 0.0f, 0.0f)});
     auto axisY = std::make_shared<Curve>(std::vector<glm::vec3>{glm::vec3(0.0f), glm::vec3(0.0f, 3.0f, 0.0f)});
     auto axisZ = std::make_shared<Curve>(std::vector<glm::vec3>{glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 3.0f)});
-	
-	auto lightMarkerX = std::make_shared<Curve>(std::vector<glm::vec3>{glm::vec3(-0.15f, 0.0f, 0.0f), glm::vec3(0.15f, 0.0f, 0.0f)});
-	auto lightMarkerY = std::make_shared<Curve>(std::vector<glm::vec3>{glm::vec3(0.0f, -0.15f, 0.0f), glm::vec3(0.0f, 0.15f, 0.0f)});
-	auto lightMarkerZ = std::make_shared<Curve>(std::vector<glm::vec3>{glm::vec3(0.0f, 0.0f, -0.15f), glm::vec3(0.0f, 0.0f, 0.15f)});
+    
+    auto lightMarkerX = std::make_shared<Curve>(std::vector<glm::vec3>{glm::vec3(-0.15f, 0.0f, 0.0f), glm::vec3(0.15f, 0.0f, 0.0f)});
+    auto lightMarkerY = std::make_shared<Curve>(std::vector<glm::vec3>{glm::vec3(0.0f, -0.15f, 0.0f), glm::vec3(0.0f, 0.15f, 0.0f)});
+    auto lightMarkerZ = std::make_shared<Curve>(std::vector<glm::vec3>{glm::vec3(0.0f, 0.0f, -0.15f), glm::vec3(0.0f, 0.0f, 0.15f)});
 
-	auto lightMarkerObjectX = makeCurveObject(shader3, lightMarkerX, glm::vec3(1.0f, 0.0f, 0.0f));
-	auto lightMarkerObjectY = makeCurveObject(shader3, lightMarkerY, glm::vec3(0.0f, 1.0f, 0.0f));
-	auto lightMarkerObjectZ = makeCurveObject(shader3, lightMarkerZ, glm::vec3(0.0f, 0.0f, 1.0f));
+    auto lightMarkerObjectX = makeCurveObject(shader3, lightMarkerX, glm::vec3(1.0f, 0.0f, 0.0f));
+    auto lightMarkerObjectY = makeCurveObject(shader3, lightMarkerY, glm::vec3(0.0f, 1.0f, 0.0f));
+    auto lightMarkerObjectZ = makeCurveObject(shader3, lightMarkerZ, glm::vec3(0.0f, 0.0f, 1.0f));
 
-	lightMarkerObjectX->setPosition(light->getPosition());
-	lightMarkerObjectY->setPosition(light->getPosition());
-	lightMarkerObjectZ->setPosition(light->getPosition());
+    lightMarkerObjectX->setPosition(light->getPosition());
+    lightMarkerObjectY->setPosition(light->getPosition());
+    lightMarkerObjectZ->setPosition(light->getPosition());
 
     renderer.addObject(makeCurveObject(shader3, controlPolygon, glm::vec3(1.0f, 0.0f, 0.0f)));
     renderer.addObject(makeCurveObject(shader3, approximationCurve, glm::vec3(0.0f, 1.0f, 0.0f)));
@@ -160,9 +160,9 @@ int main(int argc, char *argv[]) {
     renderer.addObject(makeCurveObject(shader3, axisX, glm::vec3(1.0f, 0.0f, 0.0f)));
     renderer.addObject(makeCurveObject(shader3, axisY, glm::vec3(0.0f, 1.0f, 0.0f)));
     renderer.addObject(makeCurveObject(shader3, axisZ, glm::vec3(0.0f, 0.0f, 1.0f)));
-	renderer.addObject(lightMarkerObjectX);
-	renderer.addObject(lightMarkerObjectY);
-	renderer.addObject(lightMarkerObjectZ);
+    renderer.addObject(lightMarkerObjectX);
+    renderer.addObject(lightMarkerObjectY);
+    renderer.addObject(lightMarkerObjectZ);
 
     
     std::vector<glm::vec3> controlPoints;
@@ -170,14 +170,14 @@ int main(int argc, char *argv[]) {
     bool animationActive = false;
     float animationTime = 0.0f;
     
-	std::shared_ptr<Transform> character = camera;
+    std::shared_ptr<Transform> character = camera;
 
-	std::function<void(glm::vec2, glm::vec2)> myCursorPosCallback =
-	[&character](glm::vec2 prev, glm::vec2 curr) {
-		float deltaX = curr.x - prev.x;
-		float deltaY = curr.y - prev.y;
-		character->rotateFPS(SENSETIVITY * deltaX, SENSETIVITY * deltaY);
-	}; graphics.setMyCursorPosCallback(myCursorPosCallback);
+    std::function<void(glm::vec2, glm::vec2)> myCursorPosCallback =
+    [&character](glm::vec2 prev, glm::vec2 curr) {
+        float deltaX = curr.x - prev.x;
+        float deltaY = curr.y - prev.y;
+        character->rotateFPS(SENSETIVITY * deltaX, SENSETIVITY * deltaY);
+    }; graphics.setMyCursorPosCallback(myCursorPosCallback);
 
     std::cout << "Controls:\n"
               << "mouse - rotate camera\n"
@@ -187,18 +187,18 @@ int main(int argc, char *argv[]) {
               << "SPACE - toggle animation\n"
               << "0 - control camera\n"
               << "1/2/3 - control object 1/2/3\n"
-			  << "4 - control light\n"
+              << "4 - control light\n"
               << "\n";
 
-	while (!graphics.shouldClose()) {
-		auto deltaTime = static_cast<float>(fpsManager.enforceFPS(false));
-		const bool* keys = graphics.getKeys();
+    while (!graphics.shouldClose()) {
+        auto deltaTime = static_cast<float>(fpsManager.enforceFPS(false));
+        const bool* keys = graphics.getKeys();
 
-		auto pressedOnce = [&](int key) {
-			return keys[key] && !previousKeys[key];
-		};
+        auto pressedOnce = [&](int key) {
+            return keys[key] && !previousKeys[key];
+        };
 
-		if (pressedOnce(GLFW_KEY_G)) {
+        if (pressedOnce(GLFW_KEY_G)) {
             controlPoints.push_back(camera->getPosition());
             refreshCurves(controlPoints, controlPolygon, approximationCurve, interpolationCurve);
             animationActive = false;
@@ -217,7 +217,7 @@ int main(int argc, char *argv[]) {
             animationTime = 0.0f;
         }
 
-		if (animationActive && controlPoints.size() >= 4) {
+        if (animationActive && controlPoints.size() >= 4) {
             std::vector<glm::vec3> path = interpolationCurve->getVertices();
             if (!path.empty()) {
                 animationTime += 0.25f * deltaTime;
@@ -230,37 +230,37 @@ int main(int argc, char *argv[]) {
                 camera->setPosition(glm::mix(path[i0], path[i1], localT));
                 camera->setOrientation(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             }
-		} else {
-			glm::vec3 move(0.0f);
-			if (keys[GLFW_KEY_W]) move.z += 1.0f;
-			if (keys[GLFW_KEY_S]) move.z -= 1.0f;
-			if (keys[GLFW_KEY_A]) move.x += 1.0f;
-			if (keys[GLFW_KEY_D]) move.x -= 1.0f;
-			if (keys[GLFW_KEY_Q]) move.y -= 1.0f;
-			if (keys[GLFW_KEY_E]) move.y += 1.0f;
+        } else {
+            glm::vec3 move(0.0f);
+            if (keys[GLFW_KEY_W]) move.z += 1.0f;
+            if (keys[GLFW_KEY_S]) move.z -= 1.0f;
+            if (keys[GLFW_KEY_A]) move.x += 1.0f;
+            if (keys[GLFW_KEY_D]) move.x -= 1.0f;
+            if (keys[GLFW_KEY_Q]) move.y -= 1.0f;
+            if (keys[GLFW_KEY_E]) move.y += 1.0f;
 
-			if (glm::length(move) > 0.0001f) {
-				if (character != camera) move.x *= -1.0f;
-				character->localMove(glm::normalize(move) * SPEED * deltaTime);
-			}
-		}
+            if (glm::length(move) > 0.0001f) {
+                if (character != camera) move.x *= -1.0f;
+                character->localMove(glm::normalize(move) * SPEED * deltaTime);
+            }
+        }
 
-		if (keys[GLFW_KEY_0]) character = camera;
-		else if (keys[GLFW_KEY_1]) character = object1;
-		else if (keys[GLFW_KEY_2]) character = object2;
-		else if (keys[GLFW_KEY_3]) character = object3;
-		else if (keys[GLFW_KEY_4]) character = light;
-		for (int i = 0; i < 1024; ++i) {
-			previousKeys[i] = keys[i];
-		}
+        if (keys[GLFW_KEY_0]) character = camera;
+        else if (keys[GLFW_KEY_1]) character = object1;
+        else if (keys[GLFW_KEY_2]) character = object2;
+        else if (keys[GLFW_KEY_3]) character = object3;
+        else if (keys[GLFW_KEY_4]) character = light;
+        for (int i = 0; i < 1024; ++i) {
+            previousKeys[i] = keys[i];
+        }
 
-		lightMarkerObjectX->setPosition(light->getPosition());
-		lightMarkerObjectY->setPosition(light->getPosition());
-		lightMarkerObjectZ->setPosition(light->getPosition());
+        lightMarkerObjectX->setPosition(light->getPosition());
+        lightMarkerObjectY->setPosition(light->getPosition());
+        lightMarkerObjectZ->setPosition(light->getPosition());
 
-		renderer.render();
-		graphics.frameEnd();
-	}
+        renderer.render();
+        graphics.frameEnd();
+    }
 
     return EXIT_SUCCESS;
 }
